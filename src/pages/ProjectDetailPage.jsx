@@ -267,14 +267,22 @@ export default function ProjectDetailPage() {
             {/* Título */}
             <h1 className="text-3xl font-bold text-gray-900 mb-1">{project.title}</h1>
 
-            {/* Autores */}
-            {project.users?.length > 0 && (
+            {/* Autores — usuarios con cuenta + colaboradores en texto plano */}
+            {((project.users?.length > 0) || (project.collaborators_text?.length > 0)) && (
               <p className="text-sm text-gray-500 mb-4">
                 Por{' '}
-                {project.users.map((u, i) => (
+                {project.users?.map((u, i, arr) => (
                   <span key={u.id}>
-                    <Link to={`/users/${u.id}/projects`} className="text-blue-600 hover:underline">{u.name || u.email}</Link>
-                    {i < project.users.length - 1 && ', '}
+                    <Link to={`/users/${u.id}/projects`} className="text-blue-600 hover:underline">
+                      {u.name || u.email}
+                    </Link>
+                    {(i < arr.length - 1 || project.collaborators_text?.length > 0) && ', '}
+                  </span>
+                ))}
+                {project.collaborators_text?.map((name, i) => (
+                  <span key={`text-${i}`}>
+                    {name}
+                    {i < project.collaborators_text.length - 1 && ', '}
                   </span>
                 ))}
               </p>
