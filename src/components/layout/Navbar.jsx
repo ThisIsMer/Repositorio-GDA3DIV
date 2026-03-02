@@ -27,6 +27,10 @@ export default function Navbar() {
             Proyectos
           </Link>
 
+          <Link to="/about" className="text-slate-300 hover:text-white transition text-sm">
+            ¿Qué es esto?
+          </Link>
+
           {user ? (
             <>
               <Link to="/submit" className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm transition">
