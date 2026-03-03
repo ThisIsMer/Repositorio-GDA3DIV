@@ -1,1 +1,210 @@
-@import "tailwindcss";
+@font-face {
+  font-family: "LatoCustom";
+  src: url("./assets/fonts/Lato-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "LatoCustom";
+  src: url("./assets/fonts/Lato-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+:root{
+  --bg-900:#d22020;
+  --text:#ffffff;
+  --muted:#cbcaca;
+
+  --btn:#385e9d;
+  --btn-hover:#2c4c80;
+
+  --border: rgba(255,255,255,0.08);
+}
+
+*{ box-sizing:border-box; }
+
+html, body{ height:100%; }
+
+body{
+  margin:0;
+  font-family: "LatoCustom", system-ui, sans-serif;
+  background:#ffffff;
+  color:#111827;
+}
+
+/* ====== LAYOUT BASE ====== */
+.page{
+  min-height:100vh;
+}
+
+/* ====== HERO (la parte azul de arriba) ====== */
+.hero{
+  background: var(--bg-900);
+  color: var(--text);
+  padding: 22px 32px 44px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero__inner{
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ====== NAVBAR ====== */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+}
+
+.brand{
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+
+.nav__links{
+  display:flex;
+  align-items:center;
+  gap: 26px;
+  font-size: 16px;
+}
+
+.nav__link{
+  color: rgba(255,255,255,0.85);
+  text-decoration:none;
+}
+
+.nav__link:hover{
+  color: rgba(255,255,255,1);
+}
+
+/* ====== HERO TEXTO ====== */
+.hero__content{
+  margin-top: 54px;
+  text-align:center;
+}
+
+.hero__title{
+  margin: 0;
+  font-size: 54px;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  font-weight: 900;
+}
+
+.hero__subtitle{
+  margin: 14px 0 0;
+  font-size: 20px;
+  color: rgba(155,176,208,0.95);
+}
+
+/* ====== BOTONES ====== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  cursor:pointer;
+  font-weight: 700;
+  text-decoration:none;
+  user-select:none;
+}
+
+.btn--primary{
+  background: var(--btn);
+  color: #fff;
+}
+.btn--primary:hover{ background: var(--btn-hover); }
+
+.btn--ghost{
+  background: transparent;
+  color: rgba(255,255,255,0.88);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.btn--ghost:hover{
+  border-color: rgba(255,255,255,0.28);
+  color: #fff;
+}
+
+/* Botón “Buscar” a la derecha en medio */
+.hero__actions{
+  margin-top: 26px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+/* ====== CONTENIDO BLANCO ====== */
+.content{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 110px 24px;
+  text-align:center;
+  color:#6b7280;
+  font-size: 18px;
+}
+/* ===== NAVBAR (reemplazo de Tailwind) ===== */
+.siteNav{
+  background: transparent;
+}
+
+.siteNav__inner{
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 54px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.siteNav__brand{
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  text-decoration:none;
+}
+
+.siteNav__links{
+  display:flex;
+  align-items:center;
+  gap: 24px;
+}
+
+.siteNav__link{
+  color: rgba(255,255,255,0.85);
+  text-decoration:none;
+  font-size: 15px;
+}
+
+.siteNav__link:hover{
+  color:#fff;
+}
+
+.siteNav__admin{
+  color: #fbbf24; /* amarillo */
+  text-decoration:none;
+  font-size: 15px;
+  font-weight: 700;
+}
+.siteNav__admin:hover{
+  color: #fde68a;
+}
+
+.siteNav__logout{
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+}
+.siteNav__logout:hover{
+  color: #f87171; /* rojo suave */
+}
