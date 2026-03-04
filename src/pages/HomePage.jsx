@@ -75,8 +75,10 @@ export default function HomePage() {
 
           <div className="hero__content">
             <h1 className="hero__title">Repositorio de Proyectos</h1>
+             <div className="hero__logo">
+              <img src={`${import.meta.env.BASE_URL}icons/marca-UniversidadSalamanca-blanco.png`} alt="Universidad de Salamanca" />
+            </div>
             <p className="hero__subtitle">Explora los proyectos académicos de los estudiantes</p>
-
             <form onSubmit={handleSearch} className="hero__form">
               <input
                 type="text"
