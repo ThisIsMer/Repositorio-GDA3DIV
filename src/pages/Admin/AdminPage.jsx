@@ -13,25 +13,37 @@ function mediaUrl(path) {
 function isImage(item) {
   if (item.type === 'image' || item.mime_type?.startsWith('image/')) return true
   const ext = (item.file_path || '').split('.').pop().toLowerCase()
-  return ['jpg','jpeg','png','gif','webp'].includes(ext)
+  return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)
 }
 
 function isVideo(item) {
   if (item.type === 'video' || item.mime_type?.startsWith('video/')) return true
   const ext = (item.file_path || '').split('.').pop().toLowerCase()
-  return ['mp4','avi','mov'].includes(ext)
+  return ['mp4', 'avi', 'mov'].includes(ext)
 }
 
-// ── Preview del proyecto (datos del request, no del proyecto real) ────────────
+// Devuelve TODOS los autores de un proyecto publicado:
+// - project.users[]              => usuarios con cuenta registrada
+// - project.collaborators_text[] => nombres en texto plano (sin cuenta)
+function getAllAuthors(project) {
+  return [
+    ...(project.users?.map(u => u.name || u.email) ?? []),
+    ...(project.collaborators_text ?? []),
+  ]
+}
+
+// ── Preview del proyecto (datos del request pendiente) ───────────────────────
 function ProjectPreview({ req, onClose }) {
-  const data  = req.data || {}
-  const media = data.media || []
+  const data   = req.data || {}
+  const media  = data.media || []
   const images = media.filter(isImage)
   const videos = media.filter(isVideo)
   const [featured, setFeatured] = useState(
-    videos.length > 0 ? { type: 'video', src: mediaUrl(videos[0].file_path) }
-                      : images.length > 0 ? { type: 'image', src: mediaUrl(images[0].file_path) }
-                      : null
+    videos.length > 0
+      ? { type: 'video', src: mediaUrl(videos[0].file_path) }
+      : images.length > 0
+        ? { type: 'image', src: mediaUrl(images[0].file_path) }
+        : null
   )
 
   const thumbnails = [
@@ -40,17 +52,16 @@ function ProjectPreview({ req, onClose }) {
   ].filter(t => t.src !== featured?.src)
 
   const collaborators = data.collaborators || []
-  const collaboratorsText = collaborators.filter(c => c.type === 'text').map(c => c.value)
-  const collaboratorUsers = collaborators.filter(c => c.type === 'user').map(c => c.name || c.value)
   const allAuthors = [
     req.user?.name || req.user?.email || `Usuario #${req.user_id}`,
-    ...collaboratorUsers,
-    ...collaboratorsText,
+    ...collaborators.filter(c => c.type === 'user').map(c => c.name || c.value),
+    ...collaborators.filter(c => c.type === 'text').map(c => c.value),
   ]
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl my-8">
+
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <div>
             <p className="text-xs text-gray-400 mb-0.5">Vista previa de solicitud #{req.id}</p>
@@ -63,11 +74,9 @@ function ProjectPreview({ req, onClose }) {
           {featured ? (
             <div className="p-4 pb-2">
               <div className="w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-gray-200 mb-2">
-                {featured.type === 'video' ? (
-                  <video src={featured.src} className="w-full h-full object-cover" controls muted playsInline />
-                ) : (
-                  <img src={featured.src} alt="Preview" className="w-full h-full object-cover" />
-                )}
+                {featured.type === 'video'
+                  ? <video src={featured.src} className="w-full h-full object-cover" controls muted playsInline />
+                  : <img src={featured.src} alt="Preview" className="w-full h-full object-cover" />}
               </div>
               {thumbnails.length > 0 && (
                 <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
@@ -106,18 +115,15 @@ function ProjectPreview({ req, onClose }) {
                 <span className="text-xs text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full">{data.year}</span>
               )}
             </div>
-
             <h1 className="text-2xl font-bold text-gray-900 mb-1">{data.title}</h1>
             <p className="text-sm text-gray-500 mb-4">Por {allAuthors.join(', ')}</p>
             <p className="text-gray-700 leading-relaxed mb-6 pb-6 border-b border-gray-100">{data.description}</p>
-
             {data.full_description && (
               <div className="mb-6 pb-6 border-b border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Descripción</h2>
                 <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{data.full_description}</p>
               </div>
             )}
-
             {data.game_url && (
               <div className="mb-6 pb-6 border-b border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-900 mb-2">Demo / Juego</h2>
@@ -127,7 +133,6 @@ function ProjectPreview({ req, onClose }) {
                 </a>
               </div>
             )}
-
             {data.tags?.length > 0 && (
               <div className="mb-4">
                 <h2 className="text-sm font-medium text-gray-500 mb-2">Etiquetas</h2>
@@ -138,6 +143,11 @@ function ProjectPreview({ req, onClose }) {
                 </div>
               </div>
             )}
+            {media.length > 0 && (
+              <p className="text-xs text-gray-400 mt-2">
+                📎 {media.filter(isImage).length} imagen(es) · {media.filter(isVideo).length} vídeo(s)
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -147,14 +157,14 @@ function ProjectPreview({ req, onClose }) {
 
 // ── Sección: Proyectos publicados ─────────────────────────────────────────────
 function PublishedProjectsSection() {
-  const [projects, setProjects]         = useState([])
-  const [loading, setLoading]           = useState(true)
-  const [error, setError]               = useState('')
-  const [search, setSearch]             = useState('')
-  const [selected, setSelected]         = useState(new Set())
-  const [deleteModal, setDeleteModal]   = useState(false)  // single or bulk
-  const [targetProject, setTargetProject] = useState(null) // null = bulk
-  const [deleting, setDeleting]         = useState(false)
+  const [projects, setProjects]           = useState([])
+  const [loading, setLoading]             = useState(true)
+  const [error, setError]                 = useState('')
+  const [search, setSearch]               = useState('')
+  const [selected, setSelected]           = useState(new Set())
+  const [deleteModal, setDeleteModal]     = useState(false)
+  const [targetProject, setTargetProject] = useState(null)
+  const [deleting, setDeleting]           = useState(false)
 
   const fetchProjects = async () => {
     setLoading(true); setError('')
@@ -170,11 +180,16 @@ function PublishedProjectsSection() {
 
   useEffect(() => { fetchProjects() }, [])
 
-  const filtered = projects.filter(p =>
-    p.title?.toLowerCase().includes(search.toLowerCase()) ||
-    p.subject?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.users?.some(u => (u.name || u.email)?.toLowerCase().includes(search.toLowerCase()))
-  )
+  // Filtra por título, asignatura, usuarios CON cuenta y colaboradores SIN cuenta
+  const filtered = projects.filter(p => {
+    const q = search.toLowerCase()
+    return (
+      p.title?.toLowerCase().includes(q) ||
+      p.subject?.name?.toLowerCase().includes(q) ||
+      p.users?.some(u => (u.name || u.email)?.toLowerCase().includes(q)) ||
+      p.collaborators_text?.some(name => name?.toLowerCase().includes(q))
+    )
+  })
 
   const allFilteredSelected = filtered.length > 0 && filtered.every(p => selected.has(p.id))
 
@@ -188,29 +203,14 @@ function PublishedProjectsSection() {
 
   const toggleAll = () => {
     if (allFilteredSelected) {
-      setSelected(prev => {
-        const next = new Set(prev)
-        filtered.forEach(p => next.delete(p.id))
-        return next
-      })
+      setSelected(prev => { const next = new Set(prev); filtered.forEach(p => next.delete(p.id)); return next })
     } else {
-      setSelected(prev => {
-        const next = new Set(prev)
-        filtered.forEach(p => next.add(p.id))
-        return next
-      })
+      setSelected(prev => { const next = new Set(prev); filtered.forEach(p => next.add(p.id)); return next })
     }
   }
 
-  const openDeleteSingle = (project) => {
-    setTargetProject(project)
-    setDeleteModal(true)
-  }
-
-  const openDeleteBulk = () => {
-    setTargetProject(null)
-    setDeleteModal(true)
-  }
+  const openDeleteSingle = (project) => { setTargetProject(project); setDeleteModal(true) }
+  const openDeleteBulk   = ()         => { setTargetProject(null);    setDeleteModal(true) }
 
   const confirmDelete = async () => {
     setDeleting(true)
@@ -218,15 +218,11 @@ function PublishedProjectsSection() {
       const ids = targetProject ? [targetProject.id] : [...selected]
       await Promise.all(ids.map(id => api.delete(`/admin/projects/${id}`)))
       setProjects(prev => prev.filter(p => !ids.includes(p.id)))
-      setSelected(prev => {
-        const next = new Set(prev)
-        ids.forEach(id => next.delete(id))
-        return next
-      })
+      setSelected(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next })
       setDeleteModal(false)
       setTargetProject(null)
     } catch {
-      alert('Error al eliminar los proyectos. Comprueba que el endpoint de admin existe.')
+      alert('Error al eliminar. Asegúrate de que el endpoint DELETE /admin/projects/{id} existe en el backend.')
     } finally {
       setDeleting(false)
     }
@@ -234,24 +230,25 @@ function PublishedProjectsSection() {
 
   return (
     <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+
       {/* Cabecera */}
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Proyectos en el repositorio</h2>
           <p className="text-xs text-gray-400 mt-0.5">
-            {loading ? 'Cargando...' : `${projects.length} proyecto${projects.length !== 1 ? 's' : ''} publicado${projects.length !== 1 ? 's' : ''}`}
+            {loading
+              ? 'Cargando...'
+              : `${projects.length} proyecto${projects.length !== 1 ? 's' : ''} publicado${projects.length !== 1 ? 's' : ''}`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {selected.size > 0 && (
-            <button
-              onClick={openDeleteBulk}
+            <button onClick={openDeleteBulk}
               className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition">
               🗑️ Eliminar seleccionados ({selected.size})
             </button>
           )}
-          <button
-            onClick={fetchProjects}
+          <button onClick={fetchProjects}
             className="text-sm text-blue-600 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg transition">
             ↻ Actualizar
           </button>
@@ -269,7 +266,7 @@ function PublishedProjectsSection() {
         />
       </div>
 
-      {/* Tabla */}
+      {/* Contenido */}
       {error ? (
         <div className="p-6 text-sm text-red-500 bg-red-50">{error}</div>
       ) : loading ? (
@@ -284,38 +281,35 @@ function PublishedProjectsSection() {
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500 font-medium">
                 <th className="px-4 py-3 w-10">
-                  <input
-                    type="checkbox"
-                    checked={allFilteredSelected}
-                    onChange={toggleAll}
-                    className="rounded border-gray-300 accent-blue-600 cursor-pointer"
-                    title="Seleccionar todos"
-                  />
+                  <input type="checkbox" checked={allFilteredSelected} onChange={toggleAll}
+                    className="rounded border-gray-300 accent-blue-600 cursor-pointer" title="Seleccionar todos" />
                 </th>
                 <th className="px-4 py-3">Título</th>
                 <th className="px-4 py-3">Asignatura</th>
-                <th className="px-4 py-3">Autores</th>
+                <th className="px-4 py-3">
+                  Autores
+                  <span className="ml-1 font-normal text-gray-400 hidden sm:inline">(azul = con cuenta · gris = sin cuenta)</span>
+                </th>
                 <th className="px-4 py-3">Año</th>
                 <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filtered.map(project => {
-                const authors = project.users?.map(u => u.name || u.email).join(', ') || '—'
-                const isChecked = selected.has(project.id)
+                const isChecked           = selected.has(project.id)
+                const usersWithAccount    = project.users?.map(u => u.name || u.email) ?? []
+                const usersWithoutAccount = project.collaborators_text ?? []
+                const totalAuthors        = usersWithAccount.length + usersWithoutAccount.length
+
                 return (
-                  <tr
-                    key={project.id}
-                    className={`hover:bg-gray-50 transition-colors ${isChecked ? 'bg-red-50' : ''}`}
-                  >
+                  <tr key={project.id}
+                    className={`hover:bg-gray-50 transition-colors ${isChecked ? 'bg-red-50' : ''}`}>
+
                     <td className="px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => toggleSelect(project.id)}
-                        className="rounded border-gray-300 accent-red-600 cursor-pointer"
-                      />
+                      <input type="checkbox" checked={isChecked} onChange={() => toggleSelect(project.id)}
+                        className="rounded border-gray-300 accent-red-600 cursor-pointer" />
                     </td>
+
                     <td className="px-4 py-3">
                       <span className="font-medium text-gray-900 line-clamp-1">{project.title}</span>
                       {project.tags?.length > 0 && (
@@ -326,12 +320,37 @@ function PublishedProjectsSection() {
                         </div>
                       )}
                     </td>
+
                     <td className="px-4 py-3 text-gray-600">{project.subject?.name || '—'}</td>
-                    <td className="px-4 py-3 text-gray-600 max-w-[180px] truncate">{authors}</td>
+
+                    {/* Autores: chip azul = con cuenta, chip gris = sin cuenta */}
+                    <td className="px-4 py-3 max-w-xs">
+                      {totalAuthors === 0 ? (
+                        <span className="text-gray-400">—</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {usersWithAccount.map((name, i) => (
+                            <span key={`u-${i}`}
+                              title="Usuario con cuenta registrada"
+                              className="inline-flex text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+                              {name}
+                            </span>
+                          ))}
+                          {usersWithoutAccount.map((name, i) => (
+                            <span key={`t-${i}`}
+                              title="Colaborador sin cuenta"
+                              className="inline-flex text-xs bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 rounded-full whitespace-nowrap">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
                     <td className="px-4 py-3 text-gray-500">{project.year || '—'}</td>
+
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => openDeleteSingle(project)}
+                      <button onClick={() => openDeleteSingle(project)}
                         className="text-xs text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition font-medium">
                         🗑️ Eliminar
                       </button>
@@ -350,12 +369,21 @@ function PublishedProjectsSection() {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 text-center">
             <div className="text-4xl mb-3">⚠️</div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {targetProject ? '¿Eliminar este proyecto?' : `¿Eliminar ${selected.size} proyecto${selected.size !== 1 ? 's' : ''}?`}
+              {targetProject
+                ? '¿Eliminar este proyecto?'
+                : `¿Eliminar ${selected.size} proyecto${selected.size !== 1 ? 's' : ''}?`}
             </h3>
             {targetProject ? (
-              <p className="text-sm text-gray-600 mb-1">
-                Vas a eliminar permanentemente: <span className="font-semibold">"{targetProject.title}"</span>
-              </p>
+              <>
+                <p className="text-sm text-gray-600 mb-1">
+                  Vas a eliminar permanentemente: <span className="font-semibold">"{targetProject.title}"</span>
+                </p>
+                {getAllAuthors(targetProject).length > 0 && (
+                  <p className="text-xs text-gray-400 mb-2">
+                    Autores: {getAllAuthors(targetProject).join(', ')}
+                  </p>
+                )}
+              </>
             ) : (
               <p className="text-sm text-gray-600 mb-1">
                 Vas a eliminar permanentemente {selected.size} proyecto{selected.size !== 1 ? 's' : ''} seleccionado{selected.size !== 1 ? 's' : ''}.
@@ -390,7 +418,7 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState(null)
   const [rejectModal, setRejectModal]     = useState(null)
   const [previewReq, setPreviewReq]       = useState(null)
-  const [activeTab, setActiveTab]         = useState('requests') // 'requests' | 'projects'
+  const [activeTab, setActiveTab]         = useState('requests')
 
   const fetchRequests = async () => {
     setLoading(true); setError('')
@@ -398,7 +426,9 @@ export default function AdminPage() {
       const res = await api.get('/admin/requests/pending')
       setRequests(res.data)
     } catch (err) {
-      setError(err.response?.status === 403 ? 'No tienes permisos de administrador.' : 'Error al cargar las solicitudes.')
+      setError(err.response?.status === 403
+        ? 'No tienes permisos de administrador.'
+        : 'Error al cargar las solicitudes.')
     } finally {
       setLoading(false)
     }
@@ -445,10 +475,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Modal de preview */}
-      {previewReq && (
-        <ProjectPreview req={previewReq} onClose={() => setPreviewReq(null)} />
-      )}
+      {previewReq && <ProjectPreview req={previewReq} onClose={() => setPreviewReq(null)} />}
 
       {/* Modal de rechazo */}
       {rejectModal && (
@@ -479,12 +506,9 @@ export default function AdminPage() {
       )}
 
       <div className="max-w-5xl mx-auto px-4 py-10">
-        {/* Cabecera */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
-            <p className="text-sm text-gray-500 mt-1">Gestión del repositorio de proyectos</p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
+          <p className="text-sm text-gray-500 mt-1">Gestión del repositorio de proyectos</p>
         </div>
 
         {/* Tabs */}
@@ -492,9 +516,7 @@ export default function AdminPage() {
           <button
             onClick={() => setActiveTab('requests')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              activeTab === 'requests'
-                ? 'bg-white shadow text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
+              activeTab === 'requests' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             📋 Solicitudes pendientes
@@ -507,9 +529,7 @@ export default function AdminPage() {
           <button
             onClick={() => setActiveTab('projects')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              activeTab === 'projects'
-                ? 'bg-white shadow text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
+              activeTab === 'projects' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             📁 Proyectos publicados
@@ -554,13 +574,18 @@ export default function AdminPage() {
                   return (
                     <div key={req.id}
                       className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+
+                      {/* Zona clickable => abre preview */}
                       <div onClick={() => setPreviewReq(req)} className="p-6 cursor-pointer">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
                               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${color}`}>{text}</span>
                               <span className="text-xs text-gray-400">
-                                #{req.id} · {new Date(req.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                #{req.id} · {new Date(req.created_at).toLocaleDateString('es-ES', {
+                                  day: '2-digit', month: 'short', year: 'numeric',
+                                  hour: '2-digit', minute: '2-digit',
+                                })}
                               </span>
                             </div>
                             {data.title && <h3 className="font-semibold text-gray-900 text-lg mb-1">{data.title}</h3>}
@@ -577,6 +602,8 @@ export default function AdminPage() {
                               <span>🔍</span> Haz clic para ver la vista previa completa
                             </p>
                           </div>
+
+                          {/* Acciones — stopPropagation para no abrir preview al pulsar botones */}
                           <div className="flex flex-col gap-2 shrink-0" onClick={e => e.stopPropagation()}>
                             <button
                               onClick={() => handleApprove(req.id)}
@@ -593,6 +620,7 @@ export default function AdminPage() {
                           </div>
                         </div>
                       </div>
+
                       {req.user_message && (
                         <div className="px-6 pb-4">
                           <p className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-100">
