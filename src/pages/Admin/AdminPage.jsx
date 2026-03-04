@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Navbar from '../../components/layout/Navbar'
+import Footer from '../../components/layout/Footer'
 import api from '../../services/api'
 
 const STORAGE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') ?? 'https://repositorio-backend-production.up.railway.app'
@@ -22,9 +23,6 @@ function isVideo(item) {
   return ['mp4', 'avi', 'mov'].includes(ext)
 }
 
-// Devuelve TODOS los autores de un proyecto publicado:
-// - project.users[]              => usuarios con cuenta registrada
-// - project.collaborators_text[] => nombres en texto plano (sin cuenta)
 function getAllAuthors(project) {
   return [
     ...(project.users?.map(u => u.name || u.email) ?? []),
@@ -32,7 +30,7 @@ function getAllAuthors(project) {
   ]
 }
 
-// ── Preview del proyecto (datos del request pendiente) ───────────────────────
+// ── Preview del proyecto ─────────────────────────────────────────────────────
 function ProjectPreview({ req, onClose }) {
   const data   = req.data || {}
   const media  = data.media || []
@@ -59,39 +57,41 @@ function ProjectPreview({ req, onClose }) {
   ]
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl my-8">
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 50, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '16px', overflowY: 'auto' }}>
+      <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: '760px', margin: '32px 0', fontFamily: 'LatoCustom, system-ui, sans-serif' }}>
 
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #e5e7eb' }}>
           <div>
-            <p className="text-xs text-gray-400 mb-0.5">Vista previa de solicitud #{req.id}</p>
-            <h2 className="text-lg font-bold text-gray-900">{data.title || 'Sin título'}</h2>
+            <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 2px' }}>Vista previa de solicitud #{req.id}</p>
+            <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#111827', margin: 0 }}>{data.title || 'Sin título'}</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">✕</button>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#9ca3af', lineHeight: 1 }}>✕</button>
         </div>
 
-        <div className="overflow-hidden">
+        <div>
           {featured ? (
-            <div className="p-4 pb-2">
-              <div className="w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-gray-200 mb-2">
+            <div style={{ padding: '16px 16px 8px' }}>
+              <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', background: '#f3f4f6', border: '1px solid #e5e7eb', marginBottom: '8px' }}>
                 {featured.type === 'video'
-                  ? <video src={featured.src} className="w-full h-full object-cover" controls muted playsInline />
-                  : <img src={featured.src} alt="Preview" className="w-full h-full object-cover" />}
+                  ? <video src={featured.src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} controls muted playsInline />
+                  : <img src={featured.src} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
               </div>
               {thumbnails.length > 0 && (
-                <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
                   {thumbnails.map(t => (
                     <div key={t.key} onClick={() => setFeatured(t)}
-                      className="aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 cursor-pointer hover:opacity-80 transition relative">
+                      style={{ aspectRatio: '16/9', borderRadius: '8px', overflow: 'hidden', background: '#f3f4f6', border: '1px solid #e5e7eb', cursor: 'pointer', position: 'relative', transition: 'opacity 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
+                      onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
                       {t.type === 'video' ? (
                         <>
-                          <video src={t.src} className="w-full h-full object-cover" muted preload="metadata" />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <span className="text-white text-lg">▶</span>
+                          <video src={t.src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted preload="metadata" />
+                          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)' }}>
+                            <span style={{ color: '#fff', fontSize: '18px' }}>▶</span>
                           </div>
                         </>
                       ) : (
-                        <img src={t.src} alt="" className="w-full h-full object-cover" />
+                        <img src={t.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       )}
                     </div>
                   ))}
@@ -99,52 +99,52 @@ function ProjectPreview({ req, onClose }) {
               )}
             </div>
           ) : (
-            <div className="h-40 bg-gradient-to-br from-slate-700 to-blue-800 flex items-center justify-center">
-              <span className="text-white text-5xl">📁</span>
+            <div style={{ height: '160px', background: 'linear-gradient(135deg, #334155, #1d4ed8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '48px', color: 'rgba(255,255,255,0.9)' }}>📁</span>
             </div>
           )}
 
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <div style={{ padding: '20px 24px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
               {data.subject_id && (
-                <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full">
+                <span style={{ fontSize: '12px', fontWeight: '700', color: '#385e9d', background: 'rgba(56,94,157,0.1)', padding: '4px 10px', borderRadius: '999px' }}>
                   Asignatura ID: {data.subject_id}
                 </span>
               )}
               {data.year && (
-                <span className="text-xs text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full">{data.year}</span>
+                <span style={{ fontSize: '12px', color: '#9ca3af', border: '1px solid #e5e7eb', padding: '4px 10px', borderRadius: '999px' }}>{data.year}</span>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{data.title}</h1>
-            <p className="text-sm text-gray-500 mb-4">Por {allAuthors.join(', ')}</p>
-            <p className="text-gray-700 leading-relaxed mb-6 pb-6 border-b border-gray-100">{data.description}</p>
+            <h1 style={{ fontSize: '24px', fontWeight: '900', color: '#111827', margin: '0 0 6px' }}>{data.title}</h1>
+            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '14px' }}>Por {allAuthors.join(', ')}</p>
+            <p style={{ color: '#374151', lineHeight: '1.7', marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>{data.description}</p>
             {data.full_description && (
-              <div className="mb-6 pb-6 border-b border-gray-100">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Descripción</h2>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{data.full_description}</p>
+              <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '900', color: '#111827', margin: '0 0 8px' }}>Descripción</h2>
+                <p style={{ fontSize: '14px', color: '#4b5563', lineHeight: '1.7', whiteSpace: 'pre-wrap', margin: 0 }}>{data.full_description}</p>
               </div>
             )}
             {data.game_url && (
-              <div className="mb-6 pb-6 border-b border-gray-100">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Demo / Juego</h2>
+              <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
+                <h2 style={{ fontSize: '16px', fontWeight: '900', color: '#111827', margin: '0 0 8px' }}>Demo / Juego</h2>
                 <a href={data.game_url} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#385e9d', color: '#fff', padding: '10px 18px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>
                   🎮 Ver demo
                 </a>
               </div>
             )}
             {data.tags?.length > 0 && (
-              <div className="mb-4">
-                <h2 className="text-sm font-medium text-gray-500 mb-2">Etiquetas</h2>
-                <div className="flex flex-wrap gap-2">
+              <div style={{ marginBottom: '12px' }}>
+                <p style={{ fontSize: '12px', fontWeight: '700', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px' }}>Etiquetas</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {data.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{tag}</span>
+                    <span key={tag} style={{ fontSize: '12px', background: 'rgba(56,94,157,0.08)', color: '#385e9d', border: '1px solid rgba(56,94,157,0.18)', padding: '4px 12px', borderRadius: '999px' }}>{tag}</span>
                   ))}
                 </div>
               </div>
             )}
             {media.length > 0 && (
-              <p className="text-xs text-gray-400 mt-2">
+              <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
                 📎 {media.filter(isImage).length} imagen(es) · {media.filter(isVideo).length} vídeo(s)
               </p>
             )}
@@ -180,7 +180,6 @@ function PublishedProjectsSection() {
 
   useEffect(() => { fetchProjects() }, [])
 
-  // Filtra por título, asignatura, usuarios CON cuenta y colaboradores SIN cuenta
   const filtered = projects.filter(p => {
     const q = search.toLowerCase()
     return (
@@ -194,13 +193,8 @@ function PublishedProjectsSection() {
   const allFilteredSelected = filtered.length > 0 && filtered.every(p => selected.has(p.id))
 
   const toggleSelect = (id) => {
-    setSelected(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
+    setSelected(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
   }
-
   const toggleAll = () => {
     if (allFilteredSelected) {
       setSelected(prev => { const next = new Set(prev); filtered.forEach(p => next.delete(p.id)); return next })
@@ -219,139 +213,114 @@ function PublishedProjectsSection() {
       await Promise.all(ids.map(id => api.delete(`/admin/projects/${id}`)))
       setProjects(prev => prev.filter(p => !ids.includes(p.id)))
       setSelected(prev => { const next = new Set(prev); ids.forEach(id => next.delete(id)); return next })
-      setDeleteModal(false)
-      setTargetProject(null)
+      setDeleteModal(false); setTargetProject(null)
     } catch {
-      alert('Error al eliminar. Asegúrate de que el endpoint DELETE /admin/projects/{id} existe en el backend.')
+      alert('Error al eliminar.')
     } finally {
       setDeleting(false)
     }
   }
 
-  return (
-    <section className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+  const card = { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', overflow: 'hidden' }
 
+  return (
+    <div style={card}>
       {/* Cabecera */}
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Proyectos en el repositorio</h2>
-          <p className="text-xs text-gray-400 mt-0.5">
-            {loading
-              ? 'Cargando...'
-              : `${projects.length} proyecto${projects.length !== 1 ? 's' : ''} publicado${projects.length !== 1 ? 's' : ''}`}
+          <h2 style={{ fontSize: '17px', fontWeight: '900', color: '#111827', margin: '0 0 2px' }}>Proyectos en el repositorio</h2>
+          <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>
+            {loading ? 'Cargando...' : `${projects.length} proyecto${projects.length !== 1 ? 's' : ''} publicado${projects.length !== 1 ? 's' : ''}`}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {selected.size > 0 && (
             <button onClick={openDeleteBulk}
-              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition">
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#d22020', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
               🗑️ Eliminar seleccionados ({selected.size})
             </button>
           )}
           <button onClick={fetchProjects}
-            className="text-sm text-blue-600 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg transition">
+            style={{ fontSize: '13px', color: '#385e9d', border: '1px solid rgba(56,94,157,0.3)', background: 'transparent', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit' }}>
             ↻ Actualizar
           </button>
         </div>
       </div>
 
       {/* Buscador */}
-      <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
+      <div style={{ padding: '12px 24px', borderBottom: '1px solid #f3f4f6', background: '#fafafa' }}>
         <input
           type="text"
           placeholder="Filtrar por título, asignatura o autor..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full max-w-sm border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+          style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', fontFamily: 'inherit', outline: 'none', width: '100%', maxWidth: '360px', boxSizing: 'border-box' }}
         />
       </div>
 
       {/* Contenido */}
       {error ? (
-        <div className="p-6 text-sm text-red-500 bg-red-50">{error}</div>
+        <div style={{ padding: '24px', fontSize: '14px', color: '#d22020', background: '#fff1f1' }}>{error}</div>
       ) : loading ? (
-        <div className="text-center text-gray-400 py-16">Cargando proyectos...</div>
+        <div style={{ textAlign: 'center', color: '#9ca3af', padding: '64px 0', fontSize: '14px' }}>Cargando proyectos...</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center text-gray-400 py-16">
-          {search ? 'No hay proyectos que coincidan con la búsqueda.' : 'No hay proyectos publicados.'}
+        <div style={{ textAlign: 'center', color: '#9ca3af', padding: '64px 0', fontSize: '14px' }}>
+          {search ? 'No hay proyectos que coincidan.' : 'No hay proyectos publicados.'}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500 font-medium">
-                <th className="px-4 py-3 w-10">
-                  <input type="checkbox" checked={allFilteredSelected} onChange={toggleAll}
-                    className="rounded border-gray-300 accent-blue-600 cursor-pointer" title="Seleccionar todos" />
+              <tr style={{ borderBottom: '1px solid #f3f4f6', background: '#fafafa', textAlign: 'left' }}>
+                <th style={{ padding: '10px 16px', width: '40px' }}>
+                  <input type="checkbox" checked={allFilteredSelected} onChange={toggleAll} style={{ cursor: 'pointer', accentColor: '#385e9d' }} />
                 </th>
-                <th className="px-4 py-3">Título</th>
-                <th className="px-4 py-3">Asignatura</th>
-                <th className="px-4 py-3">
-                  Autores
-                  <span className="ml-1 font-normal text-gray-400 hidden sm:inline">(azul = con cuenta · gris = sin cuenta)</span>
-                </th>
-                <th className="px-4 py-3">Año</th>
-                <th className="px-4 py-3 text-right">Acciones</th>
+                {['Título', 'Asignatura', 'Autores', 'Año', ''].map(h => (
+                  <th key={h} style={{ padding: '10px 16px', fontSize: '12px', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {filtered.map(project => {
                 const isChecked           = selected.has(project.id)
                 const usersWithAccount    = project.users?.map(u => u.name || u.email) ?? []
                 const usersWithoutAccount = project.collaborators_text ?? []
-                const totalAuthors        = usersWithAccount.length + usersWithoutAccount.length
-
                 return (
-                  <tr key={project.id}
-                    className={`hover:bg-gray-50 transition-colors ${isChecked ? 'bg-red-50' : ''}`}>
-
-                    <td className="px-4 py-3">
-                      <input type="checkbox" checked={isChecked} onChange={() => toggleSelect(project.id)}
-                        className="rounded border-gray-300 accent-red-600 cursor-pointer" />
+                  <tr key={project.id} style={{ borderBottom: '1px solid #f9fafb', background: isChecked ? '#fff5f5' : '#fff', transition: 'background 0.1s' }}
+                    onMouseEnter={e => { if (!isChecked) e.currentTarget.style.background = '#fafafa' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = isChecked ? '#fff5f5' : '#fff' }}>
+                    <td style={{ padding: '12px 16px' }}>
+                      <input type="checkbox" checked={isChecked} onChange={() => toggleSelect(project.id)} style={{ cursor: 'pointer', accentColor: '#d22020' }} />
                     </td>
-
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-gray-900 line-clamp-1">{project.title}</span>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{ fontWeight: '700', color: '#111827' }}>{project.title}</span>
                       {project.tags?.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
                           {project.tags.slice(0, 3).map(tag => (
-                            <span key={tag} className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{tag}</span>
+                            <span key={tag} style={{ fontSize: '11px', background: 'rgba(56,94,157,0.08)', color: '#385e9d', padding: '2px 8px', borderRadius: '999px' }}>{tag}</span>
                           ))}
                         </div>
                       )}
                     </td>
-
-                    <td className="px-4 py-3 text-gray-600">{project.subject?.name || '—'}</td>
-
-                    {/* Autores: chip azul = con cuenta, chip gris = sin cuenta */}
-                    <td className="px-4 py-3 max-w-xs">
-                      {totalAuthors === 0 ? (
-                        <span className="text-gray-400">—</span>
+                    <td style={{ padding: '12px 16px', color: '#374151' }}>{project.subject?.name || '—'}</td>
+                    <td style={{ padding: '12px 16px', maxWidth: '200px' }}>
+                      {(usersWithAccount.length + usersWithoutAccount.length) === 0 ? (
+                        <span style={{ color: '#9ca3af' }}>—</span>
                       ) : (
-                        <div className="flex flex-wrap gap-1">
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                           {usersWithAccount.map((name, i) => (
-                            <span key={`u-${i}`}
-                              title="Usuario con cuenta registrada"
-                              className="inline-flex text-xs bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-full whitespace-nowrap">
-                              {name}
-                            </span>
+                            <span key={`u-${i}`} style={{ fontSize: '12px', background: 'rgba(56,94,157,0.08)', color: '#385e9d', border: '1px solid rgba(56,94,157,0.15)', padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>{name}</span>
                           ))}
                           {usersWithoutAccount.map((name, i) => (
-                            <span key={`t-${i}`}
-                              title="Colaborador sin cuenta"
-                              className="inline-flex text-xs bg-gray-100 text-gray-600 border border-gray-200 px-2 py-0.5 rounded-full whitespace-nowrap">
-                              {name}
-                            </span>
+                            <span key={`t-${i}`} style={{ fontSize: '12px', background: '#f3f4f6', color: '#6b7280', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>{name}</span>
                           ))}
                         </div>
                       )}
                     </td>
-
-                    <td className="px-4 py-3 text-gray-500">{project.year || '—'}</td>
-
-                    <td className="px-4 py-3 text-right">
+                    <td style={{ padding: '12px 16px', color: '#9ca3af' }}>{project.year || '—'}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                       <button onClick={() => openDeleteSingle(project)}
-                        className="text-xs text-red-600 hover:text-red-700 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition font-medium">
+                        style={{ fontSize: '12px', color: '#d22020', border: '1px solid #fecaca', background: 'transparent', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700' }}>
                         🗑️ Eliminar
                       </button>
                     </td>
@@ -363,50 +332,41 @@ function PublishedProjectsSection() {
         </div>
       )}
 
-      {/* Modal de confirmación */}
+      {/* Modal confirmación */}
       {deleteModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 text-center">
-            <div className="text-4xl mb-3">⚠️</div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {targetProject
-                ? '¿Eliminar este proyecto?'
-                : `¿Eliminar ${selected.size} proyecto${selected.size !== 1 ? 's' : ''}?`}
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: '360px', padding: '28px', textAlign: 'center', fontFamily: 'LatoCustom, system-ui, sans-serif' }}>
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
+            <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#111827', margin: '0 0 8px' }}>
+              {targetProject ? '¿Eliminar este proyecto?' : `¿Eliminar ${selected.size} proyecto${selected.size !== 1 ? 's' : ''}?`}
             </h3>
             {targetProject ? (
               <>
-                <p className="text-sm text-gray-600 mb-1">
-                  Vas a eliminar permanentemente: <span className="font-semibold">"{targetProject.title}"</span>
-                </p>
+                <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 4px' }}>Vas a eliminar: <strong>"{targetProject.title}"</strong></p>
                 {getAllAuthors(targetProject).length > 0 && (
-                  <p className="text-xs text-gray-400 mb-2">
-                    Autores: {getAllAuthors(targetProject).join(', ')}
-                  </p>
+                  <p style={{ fontSize: '12px', color: '#9ca3af', margin: '0 0 8px' }}>Autores: {getAllAuthors(targetProject).join(', ')}</p>
                 )}
               </>
             ) : (
-              <p className="text-sm text-gray-600 mb-1">
-                Vas a eliminar permanentemente {selected.size} proyecto{selected.size !== 1 ? 's' : ''} seleccionado{selected.size !== 1 ? 's' : ''}.
+              <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 4px' }}>
+                Vas a eliminar {selected.size} proyecto{selected.size !== 1 ? 's' : ''} seleccionado{selected.size !== 1 ? 's' : ''}.
               </p>
             )}
-            <p className="text-xs text-red-500 mb-6">Esta acción no se puede deshacer.</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => { setDeleteModal(false); setTargetProject(null) }}
-                className="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 rounded-lg text-sm font-medium transition">
+            <p style={{ fontSize: '12px', color: '#d22020', margin: '0 0 24px' }}>Esta acción no se puede deshacer.</p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => { setDeleteModal(false); setTargetProject(null) }}
+                style={{ flex: 1, border: '1px solid #e5e7eb', background: 'transparent', color: '#374151', padding: '10px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancelar
               </button>
-              <button
-                onClick={confirmDelete}
-                disabled={deleting}
-                className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white py-2 rounded-lg text-sm font-medium transition">
+              <button onClick={confirmDelete} disabled={deleting}
+                style={{ flex: 1, background: '#d22020', color: '#fff', border: 'none', padding: '10px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: deleting ? 0.5 : 1 }}>
                 {deleting ? 'Eliminando...' : 'Sí, eliminar'}
               </button>
             </div>
           </div>
         </div>
       )}
-    </section>
+    </div>
   )
 }
 
@@ -443,11 +403,8 @@ export default function AdminPage() {
       setRequests(prev => prev.filter(r => r.id !== id))
       if (previewReq?.id === id) setPreviewReq(null)
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al aprobar la solicitud.'
-      alert(msg)
-    } finally {
-      setActionLoading(null)
-    }
+      alert(err.response?.data?.error || err.response?.data?.message || 'Error al aprobar.')
+    } finally { setActionLoading(null) }
   }
 
   const handleReject = async () => {
@@ -459,45 +416,44 @@ export default function AdminPage() {
       if (previewReq?.id === rejectModal.id) setPreviewReq(null)
       setRejectModal(null)
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al rechazar la solicitud.')
-    } finally {
-      setActionLoading(null)
-    }
+      alert(err.response?.data?.message || 'Error al rechazar.')
+    } finally { setActionLoading(null) }
   }
 
   const typeLabel = (type) => ({
-    create: { text: 'Crear proyecto',    color: 'bg-green-100 text-green-700' },
-    update: { text: 'Editar proyecto',   color: 'bg-blue-100 text-blue-700'  },
-    delete: { text: 'Eliminar proyecto', color: 'bg-red-100 text-red-700'    },
-  }[type] || { text: type, color: 'bg-gray-100 text-gray-700' })
+    create: { text: 'Crear proyecto',    color: { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' } },
+    update: { text: 'Editar proyecto',   color: { background: 'rgba(56,94,157,0.08)', color: '#385e9d', border: '1px solid rgba(56,94,157,0.2)' } },
+    delete: { text: 'Eliminar proyecto', color: { background: '#fff1f1', color: '#d22020', border: '1px solid #fecaca' } },
+  }[type] || { text: type, color: { background: '#f3f4f6', color: '#6b7280', border: '1px solid #e5e7eb' } })
+
+  const card = { background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="page">
       <Navbar />
 
       {previewReq && <ProjectPreview req={previewReq} onClose={() => setPreviewReq(null)} />}
 
       {/* Modal de rechazo */}
       {rejectModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-1">Rechazar solicitud</h2>
-            <p className="text-sm text-gray-500 mb-4">Indica el motivo del rechazo. El usuario lo recibirá como feedback.</p>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+          <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: '440px', padding: '28px', fontFamily: 'LatoCustom, system-ui, sans-serif' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '900', color: '#111827', margin: '0 0 4px' }}>Rechazar solicitud</h2>
+            <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 16px' }}>Indica el motivo del rechazo. El usuario lo recibirá como feedback.</p>
             <textarea
               value={rejectModal.message}
               onChange={e => setRejectModal(prev => ({ ...prev, message: e.target.value }))}
               rows={4}
               placeholder="Ej: Las imágenes no cumplen los requisitos mínimos de calidad..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none mb-4"
+              style={{ width: '100%', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box', marginBottom: '16px' }}
             />
-            <div className="flex gap-3 justify-end">
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button onClick={() => setRejectModal(null)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                style={{ border: '1px solid #e5e7eb', background: 'transparent', color: '#374151', padding: '8px 18px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancelar
               </button>
-              <button onClick={handleReject}
-                disabled={!rejectModal.message?.trim() || actionLoading !== null}
-                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-lg font-medium transition">
+              <button onClick={handleReject} disabled={!rejectModal.message?.trim() || actionLoading !== null}
+                style={{ background: '#d22020', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: (!rejectModal.message?.trim() || actionLoading !== null) ? 0.5 : 1 }}>
                 {actionLoading ? 'Rechazando...' : 'Confirmar rechazo'}
               </button>
             </div>
@@ -505,61 +461,62 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
-          <p className="text-sm text-gray-500 mt-1">Gestión del repositorio de proyectos</p>
+      <header className="hero">
+        <div className="hero__inner">
+          <div className="hero__content">
+            <h1 className="hero__title">Panel de Administración</h1>
+            <p className="hero__subtitle">Gestión del repositorio de proyectos</p>
+          </div>
         </div>
+      </header>
+
+      <main className="content" style={{ maxWidth: '1100px' }}>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6 w-fit">
-          <button
-            onClick={() => setActiveTab('requests')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              activeTab === 'requests' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            📋 Solicitudes pendientes
-            {requests.length > 0 && (
-              <span className="ml-2 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {requests.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('projects')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              activeTab === 'projects' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            📁 Proyectos publicados
-          </button>
+        <div style={{ display: 'flex', gap: '4px', background: '#f3f4f6', padding: '4px', borderRadius: '12px', width: 'fit-content', marginBottom: '24px' }}>
+          {[
+            { key: 'requests', label: '📋 Solicitudes pendientes', badge: requests.length > 0 ? requests.length : null },
+            { key: 'projects', label: '📁 Proyectos publicados', badge: null },
+          ].map(tab => (
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+              style={{
+                padding: '8px 18px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.15s',
+                background: activeTab === tab.key ? '#fff' : 'transparent',
+                color: activeTab === tab.key ? '#111827' : '#6b7280',
+                boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+              }}>
+              {tab.label}
+              {tab.badge && (
+                <span style={{ background: '#d22020', color: '#fff', fontSize: '11px', fontWeight: '900', padding: '1px 6px', borderRadius: '999px' }}>{tab.badge}</span>
+              )}
+            </button>
+          ))}
         </div>
 
-        {/* Tab: Solicitudes pendientes */}
+        {/* Tab: Solicitudes */}
         {activeTab === 'requests' && (
           <>
-            <div className="flex justify-end mb-4">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
               <button onClick={fetchRequests}
-                className="text-sm text-blue-600 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg transition">
+                style={{ fontSize: '13px', color: '#385e9d', border: '1px solid rgba(56,94,157,0.3)', background: 'transparent', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit' }}>
                 ↻ Actualizar
               </button>
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-6 text-sm">{error}</div>
+              <div style={{ background: '#fff1f1', border: '1px solid #fecaca', color: '#d22020', padding: '14px 18px', borderRadius: '10px', marginBottom: '20px', fontSize: '14px' }}>{error}</div>
             )}
 
             {loading ? (
-              <div className="text-center text-gray-400 py-20">Cargando solicitudes...</div>
+              <div style={{ textAlign: 'center', color: '#9ca3af', padding: '80px 0', fontSize: '14px' }}>Cargando solicitudes...</div>
             ) : requests.length === 0 ? (
-              <div className="text-center bg-white border border-gray-200 rounded-xl py-20 text-gray-400">
-                <div className="text-4xl mb-3">✅</div>
-                <p className="font-medium text-gray-600">No hay solicitudes pendientes</p>
-                <p className="text-sm mt-1">Todas las solicitudes han sido procesadas</p>
+              <div style={{ textAlign: 'center', ...card, padding: '80px 24px' }}>
+                <div style={{ fontSize: '40px', marginBottom: '12px' }}>✅</div>
+                <p style={{ fontWeight: '700', color: '#374151', fontSize: '16px', margin: '0 0 4px' }}>No hay solicitudes pendientes</p>
+                <p style={{ fontSize: '14px', color: '#9ca3af', margin: 0 }}>Todas las solicitudes han sido procesadas</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {requests.map(req => {
                   const { text, color } = typeLabel(req.type)
                   const data = req.data || {}
@@ -572,25 +529,22 @@ export default function AdminPage() {
                   ]
 
                   return (
-                    <div key={req.id}
-                      className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div key={req.id} style={{ ...card, transition: 'box-shadow 0.15s' }}
+                      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'}
+                      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'}>
 
-                      {/* Zona clickable => abre preview */}
-                      <div onClick={() => setPreviewReq(req)} className="p-6 cursor-pointer">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${color}`}>{text}</span>
-                              <span className="text-xs text-gray-400">
-                                #{req.id} · {new Date(req.created_at).toLocaleDateString('es-ES', {
-                                  day: '2-digit', month: 'short', year: 'numeric',
-                                  hour: '2-digit', minute: '2-digit',
-                                })}
+                      <div onClick={() => setPreviewReq(req)} style={{ padding: '20px 24px', cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '12px', fontWeight: '700', padding: '3px 10px', borderRadius: '999px', ...color }}>{text}</span>
+                              <span style={{ fontSize: '12px', color: '#9ca3af' }}>
+                                #{req.id} · {new Date(req.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            {data.title && <h3 className="font-semibold text-gray-900 text-lg mb-1">{data.title}</h3>}
-                            {data.description && <p className="text-sm text-gray-500 line-clamp-2 mb-2">{data.description}</p>}
-                            <div className="flex flex-wrap gap-3 text-xs text-gray-400 mt-1">
+                            {data.title && <h3 style={{ fontWeight: '900', color: '#111827', fontSize: '17px', margin: '0 0 4px' }}>{data.title}</h3>}
+                            {data.description && <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 8px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{data.description}</p>}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px', color: '#9ca3af' }}>
                               <span>👤 {allAuthors.join(', ')}</span>
                               {data.subject_id && <span>📚 Asignatura ID: {data.subject_id}</span>}
                               {data.year && <span>📅 {data.year}</span>}
@@ -598,23 +552,17 @@ export default function AdminPage() {
                               {mediaCount > 0 && <span>📎 {mediaCount} archivo(s)</span>}
                               {data.game_url && <span>🎮 Demo incluida</span>}
                             </div>
-                            <p className="text-xs text-blue-500 mt-2 flex items-center gap-1">
-                              <span>🔍</span> Haz clic para ver la vista previa completa
-                            </p>
+                            <p style={{ fontSize: '12px', color: '#385e9d', marginTop: '8px', margin: '8px 0 0' }}>🔍 Haz clic para ver la vista previa completa</p>
                           </div>
 
-                          {/* Acciones — stopPropagation para no abrir preview al pulsar botones */}
-                          <div className="flex flex-col gap-2 shrink-0" onClick={e => e.stopPropagation()}>
-                            <button
-                              onClick={() => handleApprove(req.id)}
-                              disabled={actionLoading !== null}
-                              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap">
+                          {/* Botones — stopPropagation */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                            <button onClick={() => handleApprove(req.id)} disabled={actionLoading !== null}
+                              style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', opacity: actionLoading !== null ? 0.5 : 1 }}>
                               {actionLoading === req.id + 'approve' ? 'Aprobando...' : '✓ Aprobar'}
                             </button>
-                            <button
-                              onClick={() => setRejectModal({ id: req.id, message: '' })}
-                              disabled={actionLoading !== null}
-                              className="bg-white hover:bg-red-50 disabled:opacity-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap">
+                            <button onClick={() => setRejectModal({ id: req.id, message: '' })} disabled={actionLoading !== null}
+                              style={{ background: '#fff', color: '#d22020', border: '1px solid #fecaca', padding: '10px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', opacity: actionLoading !== null ? 0.5 : 1 }}>
                               ✕ Rechazar
                             </button>
                           </div>
@@ -622,9 +570,9 @@ export default function AdminPage() {
                       </div>
 
                       {req.user_message && (
-                        <div className="px-6 pb-4">
-                          <p className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <span className="font-medium text-gray-700">Mensaje del usuario: </span>{req.user_message}
+                        <div style={{ padding: '0 24px 16px' }}>
+                          <p style={{ fontSize: '12px', color: '#6b7280', background: '#fafafa', borderRadius: '8px', padding: '10px 14px', border: '1px solid #f3f4f6', margin: 0 }}>
+                            <strong style={{ color: '#374151' }}>Mensaje del usuario: </strong>{req.user_message}
                           </p>
                         </div>
                       )}
@@ -638,7 +586,10 @@ export default function AdminPage() {
 
         {/* Tab: Proyectos publicados */}
         {activeTab === 'projects' && <PublishedProjectsSection />}
-      </div>
+
+      </main>
+
+      <Footer />
     </div>
   )
 }

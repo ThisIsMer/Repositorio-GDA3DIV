@@ -305,7 +305,7 @@ export default function ProfilePage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
           {/* ── Mi Perfil ── */}
-          <div className="about__card">
+          <div className="about__card" style={{ padding: "32px" }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h2 className="about__h2" style={{ marginBottom: 0 }}>Información personal</h2>
               {!editing && (
@@ -330,7 +330,7 @@ export default function ProfilePage() {
                     <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', background: '#dbeafe', border: '2px solid #bfdbfe' }}>
                       {currentAvatar
                         ? <img src={currentAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', fontSize: '28px', fontWeight: '900' }}>{initials}</div>}
+                        : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
                     </div>
                     <button type="button" onClick={() => avatarInputRef.current?.click()}
                       style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#2563eb', color: '#fff', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', border: 'none', cursor: 'pointer' }}>
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                 <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', background: '#dbeafe', border: '2px solid #e5e7eb', flexShrink: 0 }}>
                   {currentAvatar
                     ? <img src={currentAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563eb', fontSize: '28px', fontWeight: '900' }}>{initials}</div>}
+                    : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
                 </div>
                 <div>
                   <p style={{ fontWeight: '700', color: '#111827', fontSize: '18px', marginBottom: '4px' }}>{user?.name || '—'}</p>
@@ -383,7 +383,7 @@ export default function ProfilePage() {
           </div>
 
           {/* ── Mis proyectos ── */}
-          <div className="about__card">
+          <div className="about__card" style={{ padding: "32px" }}>
             <h2 className="about__h2">Mis Proyectos</h2>
             {loadingProjects ? (
               <p style={{ fontSize: '14px', color: '#9ca3af' }}>Cargando proyectos...</p>
@@ -393,9 +393,9 @@ export default function ProfilePage() {
                 <Link to="/submit" className="btn btn--primary btn--sm">+ Subir proyecto</Link>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {projects.map(project => (
-                  <div key={project.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #f3f4f6', borderRadius: '12px', padding: '14px 16px', gap: '12px' }}>
+                  <div key={project.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '18px 20px', gap: '12px' }}>
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <Link to={`/projects/${project.id}`} style={{ fontWeight: '700', color: '#111827', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {project.title}
@@ -419,18 +419,18 @@ export default function ProfilePage() {
           </div>
 
           {/* ── Mis solicitudes ── */}
-          <div className="about__card">
+          <div className="about__card" style={{ padding: "32px" }}>
             <h2 className="about__h2">Mis Solicitudes</h2>
             {loadingRequests ? (
               <p style={{ fontSize: '14px', color: '#9ca3af' }}>Cargando solicitudes...</p>
             ) : requests.length === 0 ? (
               <p style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af', fontSize: '14px' }}>No has enviado ninguna solicitud aún.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {requests.map(req => {
                   const { text, color } = statusLabel(req.status)
                   return (
-                    <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #f3f4f6', borderRadius: '12px', padding: '12px 16px', fontSize: '14px', gap: '12px' }}>
+                    <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '16px 20px', fontSize: '14px', gap: '12px' }}>
                       <div>
                         <span style={{ fontWeight: '700', color: '#111827' }}>{req.data?.title || `Solicitud #${req.id}`}</span>
                         <span style={{ color: '#9ca3af', marginLeft: '8px', fontSize: '12px' }}>{typeLabel(req.type)}</span>

@@ -293,7 +293,7 @@ export default function SubmitProjectPage() {
       <header className="hero">
         <div className="hero__inner">
           <div className="hero__content">
-            <h1 className="hero__title">Hola</h1>
+            <h1 className="hero__title">Subir Proyecto</h1>
             <p className="hero__subtitle">Comparte tu trabajo con la comunidad académica</p>
           </div>
         </div>
@@ -384,7 +384,7 @@ export default function SubmitProjectPage() {
                   </button>
                 )}
               </div>
-              <div style={{ fontSize: '12px', color: '#2563eb', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '8px 12px', marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', color: '#991b1b', background: '#fff1f1', border: '1px solid #fca5a5', borderRadius: '8px', padding: '8px 12px', marginBottom: '8px' }}>
                 💡 <strong>Medidas óptimas:</strong> 1920×1080px (16:9). Mínimo 1280×720px.
               </div>
               <button type="button" onClick={() => imageInputRef.current?.click()}
@@ -428,8 +428,8 @@ export default function SubmitProjectPage() {
                   </button>
                 )}
               </div>
-              <div style={{ fontSize: '12px', color: '#2563eb', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '8px 12px', marginBottom: '8px' }}>
-                 <strong>Medidas óptimas:</strong> 1920×1080px a 30fps, formato MP4 (H.264). Duración: 1–3 minutos.
+              <div style={{ fontSize: '12px', color: '#991b1b', background: '#fff1f1', border: '1px solid #fca5a5', borderRadius: '8px', padding: '8px 12px', marginBottom: '8px' }}>
+                💡 <strong>Medidas óptimas:</strong> 1920×1080px a 30fps, formato MP4 (H.264). Duración: 1–3 minutos.
               </div>
               <button type="button" onClick={() => videoInputRef.current?.click()}
                 style={{ width: '100%', border: '2px dashed #d1d5db', background: 'transparent', borderRadius: '10px', padding: '14px', fontSize: '14px', color: '#6b7280', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
@@ -472,7 +472,7 @@ export default function SubmitProjectPage() {
 
             <button type="submit" disabled={loading || !form.authorization}
               className="btn btn--primary"
-              style={{ width: '100%', justifyContent: 'center', borderRadius: '10px', padding: '14px', fontSize: '15px', opacity: (loading || !form.authorization) ? 0.5 : 1, cursor: (loading || !form.authorization) ? 'not-allowed' : 'pointer' }}>
+              style={{ width: '100%', justifyContent: 'center', borderRadius: '10px', padding: '14px', fontSize: '15px', background: '#385e9d', opacity: (loading || !form.authorization) ? 0.5 : 1, cursor: (loading || !form.authorization) ? 'not-allowed' : 'pointer' }}>
               {loading ? 'Enviando solicitud...' : 'Enviar solicitud de publicación'}
             </button>
             <p style={{ fontSize: '12px', color: '#9ca3af', textAlign: 'center', margin: '-8px 0 0' }}>Tu proyecto será visible una vez que un administrador lo apruebe.</p>

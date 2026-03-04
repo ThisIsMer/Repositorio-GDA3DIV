@@ -303,7 +303,7 @@ export default function ProjectDetailPage() {
                 <h2 style={{ fontSize: '13px', fontWeight: '700', color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 0 }}>Etiquetas</h2>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                   {project.tags.map(tag => (
-                    <span key={tag} style={{ fontSize: '12px', background: '#f3f4f6', color: '#4b5563', padding: '4px 12px', borderRadius: '999px' }}>{tag}</span>
+                    <span key={tag} style={{ fontSize: '12px', background: 'rgba(56,94,157,0.08)', color: '#385e9d', border: '1px solid rgba(56,94,157,0.18)', padding: '4px 12px', borderRadius: '999px' }}>{tag}</span>
                   ))}
                 </div>
               </div>
