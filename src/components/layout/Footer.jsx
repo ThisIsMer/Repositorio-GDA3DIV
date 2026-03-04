@@ -10,7 +10,7 @@ export default function Footer() {
         className="siteFooter__logo"
         />
         <p className="siteFooter__text">
-        <strong>Repositorio de Proyectos Académicos</strong><br />
+        <strong>Repositorio de Proyectos</strong><br />
         Universidad de Salamanca · Todos los derechos reservados
         </p>
         <div className="siteFooter__links">

@@ -74,8 +74,10 @@ export default function Navbar({ onOpenMenu }) {
       {/* MENÚ MÓVIL fullscreen */}
       <div className={`mobileMenu ${mobileOpen ? 'mobileMenu--open' : ''}`}>
         <button className="mobileMenu__close" onClick={() => setMobileOpen(false)}>✕</button>
-
+                
         <nav className="mobileMenu__nav">
+          <img src={`${import.meta.env.BASE_URL}icons/logo.png`} width="100" height="100" alt="logo" />
+          <img src={`${import.meta.env.BASE_URL}icons/logotipo-UniversidadSalamanca-color.png`} width="350" height="25" alt="Universidad de Salamanca" />
           {onOpenMenu && (
             <button className="mobileMenu__link" onClick={() => { onOpenMenu(); setMobileOpen(false); }}>
               Asignaturas
@@ -99,6 +101,7 @@ export default function Navbar({ onOpenMenu }) {
               </div>
             </>
           )}
+          
         </nav>
       </div>
     </>

@@ -77,8 +77,14 @@ body {
   gap: 12px;
 }
 
-.topBar__left { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.topBar__brand { display: flex; align-items: center; }
+.topBar__left { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    flex-shrink: 0; }
+.topBar__brand { 
+    display: flex; 
+    align-items: center; }
 
 .topBar__logo {
   height: 40px;
@@ -126,7 +132,9 @@ body {
   border-radius: 8px;
   transition: background 0.15s;
 }
-.topBar__adminLink:hover { background: rgba(217, 119, 6, 0.08); }
+.topBar__adminLink:hover { 
+    background: rgba(217, 119, 6, 0.08); 
+}
 
 .topBar__logoutBtn {
   background: transparent;
@@ -140,10 +148,23 @@ body {
   font-family: inherit;
   transition: color 0.15s;
 }
-.topBar__logoutBtn:hover { color: #d22020; }
+.topBar__logoutBtn:hover { 
+    color: #d22020; 
+}
 
-.topBar__right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.topBar__auth { display: flex; align-items: center; gap: 4px; }
+.topBar__right { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    flex-shrink: 0; 
+}
+.topBar__auth { 
+    display: flex; 
+    align-items: center; 
+    gap: 4px; 
+}
+
+/*Version movil*/
 
 .mobileMenuBtn {
   display: none;
@@ -156,8 +177,18 @@ body {
   padding: 6px;
   border-radius: 8px;
 }
-.mobileMenuBtn span { display: block; width: 22px; height: 2px; background: #111827; border-radius: 2px; transition: background 0.15s; }
-.mobileMenuBtn:hover span { background: #d22020; }
+.mobileMenuBtn span { 
+    display: block; 
+    width: 22px; 
+    height: 2px; 
+    background: #111827; 
+    border-radius: 2px; 
+    transition: 
+    background 0.15s; 
+}
+.mobileMenuBtn:hover span { 
+    background: #d22020; 
+}
 
 /* ===== HERO ===== */
 .hero {
@@ -425,7 +456,7 @@ body {
 .mobileMenu {
   position: fixed;
   inset: 0;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.95);
   z-index: 100;
   display: flex;
   flex-direction: column;
