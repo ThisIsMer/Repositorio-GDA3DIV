@@ -293,7 +293,7 @@ export default function SubmitProjectPage() {
       <header className="hero">
         <div className="hero__inner">
           <div className="hero__content">
-            <h1 className="hero__title">Subir Proyecto</h1>
+            <h1 className="hero__title">Hola</h1>
             <p className="hero__subtitle">Comparte tu trabajo con la comunidad académica</p>
           </div>
         </div>
@@ -429,7 +429,7 @@ export default function SubmitProjectPage() {
                 )}
               </div>
               <div style={{ fontSize: '12px', color: '#2563eb', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '8px 12px', marginBottom: '8px' }}>
-                💡 <strong>Medidas óptimas:</strong> 1920×1080px a 30fps, formato MP4 (H.264). Duración: 1–3 minutos.
+                 <strong>Medidas óptimas:</strong> 1920×1080px a 30fps, formato MP4 (H.264). Duración: 1–3 minutos.
               </div>
               <button type="button" onClick={() => videoInputRef.current?.click()}
                 style={{ width: '100%', border: '2px dashed #d1d5db', background: 'transparent', borderRadius: '10px', padding: '14px', fontSize: '14px', color: '#6b7280', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
