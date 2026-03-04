@@ -71,6 +71,17 @@ export default function AboutPage() {
           </div>
         </section>
 
+         {/* Fila 4: Sobre los autores */}
+        <div className="about__grid">
+
+          <section className="about__card">
+            <h2 className="about__h2">Sobre los autores</h2>
+            <p style={{ color: '#374151', lineHeight: '1.7' }}>
+              Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.
+            </p>
+          </section>
+        </div>
+
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <Link to="/" style={{ color: '#385e9d', textDecoration: 'none', fontSize: '15px' }}>← Volver al repositorio</Link>
         </div>

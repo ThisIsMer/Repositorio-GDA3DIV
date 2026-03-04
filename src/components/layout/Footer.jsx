@@ -13,10 +13,6 @@ export default function Footer() {
         <strong>Repositorio de Proyectos</strong><br />
         Universidad de Salamanca · Todos los derechos reservados
         </p>
-        <div className="siteFooter__links">
-        <a href="/" className="siteFooter__link">Proyectos</a>
-        <a href="/about" className="siteFooter__link">¿Qué es esto?</a>
-        </div>
     </div>
     </footer>
   )

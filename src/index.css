@@ -267,19 +267,42 @@ body {
   font-family: inherit;
   font-size: 14px;
 }
-.btn--primary { background: var(--btn); color: #fff; }
-.btn--primary:hover { background: var(--btn-hover); }
-.btn--sm { padding: 7px 14px; font-size: 13px; }
+.btn--primary { 
+    background: var(--btn); 
+    color: #fff; 
+}
+.btn--primary:hover { 
+    background: var(--btn-hover); 
+}
+.btn--sm { 
+    padding: 7px 14px; font-size: 13px; 
+}
 
 /* ===== CONTENIDO ===== */
-.content { max-width: 1180px; margin: 0 auto; padding: 34px 24px 80px; }
-.empty { padding: 110px 0; color: #6b7280; text-align: center; font-size: 18px; }
+.content { 
+    max-width: 1180px; 
+    margin: 0 auto; 
+    padding: 34px 24px 80px; 
+}
+.empty { 
+    padding: 110px 0; 
+    color: #6b7280; 
+    text-align: center; 
+    font-size: 18px; 
+}
 
 /* Grid */
-.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(3, minmax(0, 1fr)); 
+    gap: 18px; 
+}
 
 /* Cards */
-.cardLink { text-decoration: none; color: inherit; }
+.cardLink { 
+    text-decoration: none; 
+    color: inherit; 
+}
 .card {
   background: #fff;
   border: 1px solid rgba(17, 24, 39, 0.08);
@@ -291,7 +314,10 @@ body {
   display: flex;
   flex-direction: column;
 }
-.card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10); }
+.card:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10); 
+}
 
 .thumb {
   height: 176px;
@@ -301,12 +327,36 @@ body {
   align-items: center;
   justify-content: center;
 }
-.thumbImg { width: 100%; height: 100%; object-fit: cover; display: block; }
-.thumbFallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-.thumbIcon { font-size: 38px; color: rgba(255, 255, 255, 0.95); }
+.thumbImg { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    display: block; 
+}
+.thumbFallback { 
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+.thumbIcon { 
+    font-size: 38px; 
+    color: rgba(255, 255, 255, 0.95); 
+}
 
-.cardBody { padding: 14px 14px 16px; display: flex; flex-direction: column; flex: 1; }
-.cardTop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.cardBody { 
+    padding: 14px 14px 16px; 
+    display: flex; 
+    flex-direction: column; 
+    flex: 1; 
+}
+.cardTop { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    gap: 10px; 
+}
 
 .badge {
   font-size: 12px;
@@ -320,7 +370,9 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.year { font-size: 12px; color: #9ca3af; }
+.year { 
+    font-size: 12px; color: #9ca3af; 
+}
 
 .cardTitle {
   margin: 10px 0 6px;
@@ -403,7 +455,10 @@ body {
   transition: opacity .18s ease;
   z-index: 50;
 }
-.overlay.is-open { opacity: 1; pointer-events: auto; }
+.overlay.is-open { 
+    opacity: 1; 
+    pointer-events: auto; }
+
 
 .sideMenu {
   position: fixed;
@@ -431,11 +486,31 @@ body {
   padding: 6px 6px 10px;
   border-bottom: 1px solid rgba(17, 24, 39, 0.08);
 }
-.sideMenu__title { font-weight: 900; color: #111827; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
-.sideMenu__close { border: 0; background: transparent; cursor: pointer; font-size: 18px; color: #6b7280; padding: 8px 10px; border-radius: 10px; }
-.sideMenu__close:hover { background: rgba(17, 24, 39, 0.06); color: #111827; }
+.sideMenu__title { 
+    font-weight: 900; 
+    color: #111827; 
+    font-size: 14px; 
+    letter-spacing: .08em; 
+    text-transform: uppercase; 
+}
+.sideMenu__close { 
+    border: 0; 
+    background: transparent; 
+    cursor: pointer; 
+    font-size: 18px; 
+    color: #6b7280; 
+    padding: 8px 10px; 
+    border-radius: 10px; 
+}
+.sideMenu__close:hover { 
+    background: rgba(17, 24, 39, 0.06); 
+    color: #111827; 
+}
 
-.sideMenu__list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; overflow: auto; padding-right: 4px; }
+.sideMenu__list {
+    margin-top: 12px; 
+    display: flex; 
+    flex-direction: column; gap: 8px; overflow: auto; padding-right: 4px; }
 
 .sideMenu__item {
   width: 100%;
