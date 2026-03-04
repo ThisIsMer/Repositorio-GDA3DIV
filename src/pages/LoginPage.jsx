@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import Navbar from '../components/layout/Navbar'
+import Footer from '../components/layout/Footer'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -29,9 +30,11 @@ export default function LoginPage() {
 
   return (
     <div className="page">
+
+      <Navbar />
+
       <header className="hero">
         <div className="hero__inner">
-          <Navbar />
           <div className="hero__content">
             <h1 className="hero__title">Iniciar Sesión</h1>
             <p className="hero__subtitle">Accede a tu cuenta para gestionar tus proyectos</p>
@@ -41,50 +44,28 @@ export default function LoginPage() {
 
       <main className="authWrap">
         <div className="authCard">
-
           {error && <div className="authCard__error">{error}</div>}
-
           <form onSubmit={handleSubmit} className="authCard__fields">
             <div>
               <label className="authCard__label">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                className="authCard__input"
-                required
-              />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" className="authCard__input" required />
             </div>
-
             <div>
               <label className="authCard__label">Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="authCard__input"
-                required
-              />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="authCard__input" required />
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn--primary authCard__submit"
-            >
+            <button type="submit" disabled={loading} className="btn btn--primary authCard__submit">
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
-
           <p className="authCard__footer">
             ¿No tienes cuenta?{' '}
             <Link to="/register" className="authCard__footerLink">Regístrate</Link>
           </p>
-
         </div>
       </main>
+
+      <Footer />
     </div>
   )
 }

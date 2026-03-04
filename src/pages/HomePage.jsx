@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
+import Footer from '../components/layout/Footer'
 import api from '../services/api'
 
 const STORAGE_URL =
@@ -35,8 +36,6 @@ export default function HomePage() {
       const res = await api.get('/projects', { params })
       const data = res.data.data
       setProjects(data)
-
-      // Extraer asignaturas únicas de los proyectos
       const uniqueSubjects = []
       const seen = new Set()
       data.forEach(p => {
@@ -53,29 +52,23 @@ export default function HomePage() {
     }
   }
 
-  useEffect(() => {
-    fetchProjects()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  useEffect(() => { fetchProjects() }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
-    fetchProjects({
-      search: search || undefined,
-      subject_id: selectedSubject || undefined,
-    })
+    fetchProjects({ search: search || undefined, subject_id: selectedSubject || undefined })
   }
 
   return (
     <div className="page">
-      {/* HERO */}
+
+      <Navbar onOpenMenu={() => setIsMenuOpen(true)} />
+
       <header className="hero">
         <div className="hero__inner">
-          <Navbar onOpenMenu={() => setIsMenuOpen(true)} />
-
           <div className="hero__content">
             <h1 className="hero__title">Repositorio de Proyectos</h1>
-             <div className="hero__logo">
+            <div className="hero__logo">
               <img src={`${import.meta.env.BASE_URL}icons/marca-UniversidadSalamanca-blanco.png`} alt="Universidad de Salamanca" />
             </div>
             <p className="hero__subtitle">Explora los proyectos académicos de los estudiantes</p>
@@ -87,15 +80,12 @@ export default function HomePage() {
                 onChange={e => setSearch(e.target.value)}
                 className="field"
               />
-              <button type="submit" className="btn btn--primary">
-                Buscar
-              </button>
+              <button type="submit" className="btn btn--primary">Buscar</button>
             </form>
           </div>
         </div>
       </header>
 
-      {/* CONTENIDO */}
       <main className="content">
         {loading ? (
           <div className="empty">Cargando proyectos...</div>
@@ -110,25 +100,16 @@ export default function HomePage() {
                   <article className="card">
                     <div className="thumb">
                       {cover ? (
-                        <img
-                          src={cover}
-                          alt={project.title}
-                          className="thumbImg"
-                          onError={e => e.currentTarget.remove()}
-                        />
+                        <img src={cover} alt={project.title} className="thumbImg" onError={e => e.currentTarget.remove()} />
                       ) : (
-                        <div className="thumbFallback">
-                          <span className="thumbIcon">📁</span>
-                        </div>
+                        <div className="thumbFallback"><span className="thumbIcon">📁</span></div>
                       )}
                     </div>
-
                     <div className="cardBody">
                       <div className="cardTop">
                         <span className="badge">{project.subject?.name}</span>
                         {project.year && <span className="year">{project.year}</span>}
                       </div>
-
                       <h3 className="cardTitle">{project.title}</h3>
                       <p className="cardDesc">{project.description}</p>
                     </div>
@@ -140,26 +121,15 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* OVERLAY */}
-      <div
-        className={`overlay ${isMenuOpen ? 'is-open' : ''}`}
-        onClick={() => setIsMenuOpen(false)}
-      />
+      <Footer />
 
-      {/* MENÚ LATERAL */}
+      <div className={`overlay ${isMenuOpen ? 'is-open' : ''}`} onClick={() => setIsMenuOpen(false)} />
+
       <aside className={`sideMenu ${isMenuOpen ? 'is-open' : ''}`}>
         <div className="sideMenu__top">
           <div className="sideMenu__title">Asignaturas</div>
-          <button
-            type="button"
-            className="sideMenu__close"
-            onClick={() => setIsMenuOpen(false)}
-            aria-label="Cerrar menú"
-          >
-            ✕
-          </button>
+          <button type="button" className="sideMenu__close" onClick={() => setIsMenuOpen(false)}>✕</button>
         </div>
-
         <div className="sideMenu__list">
           {subjects.map(s => (
             <button

@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
+import Footer from '../components/layout/Footer'
 
 export default function AboutPage() {
   return (
     <div className="page">
+
+      <Navbar />
+
       <header className="hero">
         <div className="hero__inner">
-          <Navbar />
           <div className="hero__content">
             <h1 className="hero__title">¿Qué es este repositorio?</h1>
             <p className="hero__subtitle">Conoce el propósito y funcionamiento de esta plataforma</p>
@@ -14,39 +17,52 @@ export default function AboutPage() {
         </div>
       </header>
 
-      <main className="content" style={{ maxWidth: '860px' }}>
+      <main className="content" style={{ maxWidth: '1100px' }}>
 
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#111827', marginBottom: '10px' }}>Propósito</h2>
-          <p style={{ color: '#374151', lineHeight: '1.7' }}>Lorem ipsum dolor sit amet...</p>
-        </section>
+        {/* Fila 1: Propósito + Criterios */}
+        <div className="about__grid">
 
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#111827', marginBottom: '10px' }}>Criterios de publicación</h2>
-          <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: 0, listStyle: 'none' }}>
-            {[
-              'Nemo enim ipsam voluptatem quia voluptas sit aspernatur.',
-              'Neque porro quisquam est qui dolorem ipsum.',
-              'Ut labore et dolore magnam aliquam quaerat.',
-              'Quis autem vel eum iure reprehenderit.',
-            ].map((item, i) => (
-              <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '15px', color: '#374151' }}>
-                <span style={{ background: '#d22020', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '900', flexShrink: 0 }}>{i + 1}</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
+          <section className="about__card">
+            <h2 className="about__h2">Propósito</h2>
+            <p style={{ color: '#374151', lineHeight: '1.7' }}>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            </p>
+          </section>
 
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '900', color: '#111827', marginBottom: '10px' }}>¿Cómo funciona?</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '16px' }}>
+          <section className="about__card">
+            <h2 className="about__h2">Criterios de publicación</h2>
+            <p style={{ color: '#374151', lineHeight: '1.7', marginBottom: '14px' }}>
+              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingLeft: 0, listStyle: 'none' }}>
+              {[
+                'Nemo enim ipsam voluptatem quia voluptas sit aspernatur.',
+                'Neque porro quisquam est qui dolorem ipsum.',
+                'Ut labore et dolore magnam aliquam quaerat.',
+                'Quis autem vel eum iure reprehenderit.',
+              ].map((item, i) => (
+                <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '15px', color: '#374151' }}>
+                  <span style={{ background: '#d22020', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '900', flexShrink: 0 }}>{i + 1}</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        {/* Fila 2: ¿Cómo funciona? — ancho completo */}
+        <section className="about__card" style={{ marginTop: '24px' }}>
+          <h2 className="about__h2">¿Cómo funciona?</h2>
+          <p style={{ color: '#374151', lineHeight: '1.7', marginBottom: '16px' }}>
+            At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti.
+          </p>
+           <div className="about__steps">
             {[
               { img: 'document.png', title: 'Sube tu proyecto', desc: 'Rellena el formulario con los datos y archivos de tu proyecto.' },
               { img: 'search.png',   title: 'Revisión',         desc: 'Un administrador revisa que cumple los criterios del repositorio.' },
               { img: 'check.png',    title: 'Publicación',      desc: 'Si es aprobado, tu proyecto queda visible para toda la comunidad.' },
             ].map(({ img, title, desc }) => (
-              <div key={title} style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
+              <div key={title} style={{ background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
                 <img src={`${import.meta.env.BASE_URL}icons/${img}`} alt={title} className="aboutCard__icon" />
                 <p style={{ fontWeight: '900', fontSize: '15px', marginBottom: '6px', color: '#111827' }}>{title}</p>
                 <p style={{ fontSize: '13px', color: '#6b7280' }}>{desc}</p>
@@ -56,9 +72,12 @@ export default function AboutPage() {
         </section>
 
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <Link to="/" className="siteNav__link">← Volver al repositorio</Link>
+          <Link to="/" style={{ color: '#385e9d', textDecoration: 'none', fontSize: '15px' }}>← Volver al repositorio</Link>
         </div>
+
       </main>
+
+      <Footer />
     </div>
   )
 }
