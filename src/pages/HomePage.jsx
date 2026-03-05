@@ -45,7 +45,7 @@ export default function HomePage() {
         }
       })
       setSubjects(uniqueSubjects)
-    } catch (e) {
+    } catch {
       setProjects([])
     } finally {
       setLoading(false)
@@ -61,7 +61,6 @@ export default function HomePage() {
 
   return (
     <div className="page">
-
       <Navbar />
 
       <header className="hero">
@@ -73,16 +72,8 @@ export default function HomePage() {
             </div>
             <p className="hero__subtitle">Explora los proyectos académicos de los estudiantes</p>
             <form onSubmit={handleSearch} className="hero__form">
-              <button
-                type="button"
-                className="btn btn--filters"
-                onClick={() => setIsMenuOpen(true)}
-              >
-                <img
-                  src={`${import.meta.env.BASE_URL}icons/filtro.png`}
-                  alt=""
-                  style={{ width: '18px', height: '18px', filter: 'brightness(0) invert(1)' }}
-                />
+              <button type="button" className="btn btn--filters" onClick={() => setIsMenuOpen(true)}>
+                <img src={`${import.meta.env.BASE_URL}icons/icons8-filter-50.png`} alt="" className="btn__filterIcon" />
                 Filtros
               </button>
               <input
@@ -101,10 +92,7 @@ export default function HomePage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedSubject('')
-                    fetchProjects({ search: search || undefined })
-                  }}
+                  onClick={() => { setSelectedSubject(''); fetchProjects({ search: search || undefined }) }}
                   className="hero__clearFilter"
                 >
                   ✕ Quitar filtro
@@ -165,11 +153,7 @@ export default function HomePage() {
             <button
               type="button"
               className={`sideMenu__item ${selectedSubject === '' ? 'is-active' : ''}`}
-              onClick={() => {
-                setSelectedSubject('')
-                fetchProjects({ search: search || undefined })
-                setIsMenuOpen(false)
-              }}
+              onClick={() => { setSelectedSubject(''); fetchProjects({ search: search || undefined }); setIsMenuOpen(false) }}
             >
               Todas las asignaturas
             </button>
@@ -178,11 +162,7 @@ export default function HomePage() {
                 key={s.id}
                 type="button"
                 className={`sideMenu__item ${String(selectedSubject) === String(s.id) ? 'is-active' : ''}`}
-                onClick={() => {
-                  setSelectedSubject(String(s.id))
-                  fetchProjects({ search: search || undefined, subject_id: s.id })
-                  setIsMenuOpen(false)
-                }}
+                onClick={() => { setSelectedSubject(String(s.id)); fetchProjects({ search: search || undefined, subject_id: s.id }); setIsMenuOpen(false) }}
               >
                 {s.name}
               </button>

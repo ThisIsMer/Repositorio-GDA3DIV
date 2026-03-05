@@ -18,19 +18,14 @@ function isEmail(str) {
 }
 
 function CollaboratorChip({ collab, onRemove }) {
-  const base = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium'
-  if (collab.type === 'user') {
-    return (
-      <span className={`${base} bg-blue-100 text-blue-800`}>
-        👤 {collab.name || collab.value}
-        {onRemove && <button type="button" onClick={onRemove} className="hover:text-blue-600 ml-0.5">✕</button>}
-      </span>
-    )
-  }
+  const cls = collab.type === 'user' ? 'collab__chip collab__chip--user' : 'collab__chip collab__chip--text'
   return (
-    <span className={`${base} bg-gray-100 text-gray-700`}>
-      {collab.value}
-      {onRemove && <button type="button" onClick={onRemove} className="hover:text-gray-500 ml-0.5">✕</button>}
+    <span className={cls}>
+      {collab.type === 'user' && '👤 '}
+      {collab.name || collab.value}
+      {onRemove && (
+        <button type="button" onClick={onRemove} className="collab__chipBtn">✕</button>
+      )}
     </span>
   )
 }
@@ -77,9 +72,8 @@ function CollaboratorsField({ collaborators, onChange }) {
     const val = input.trim()
     if (!val) return
     if (isEmail(val)) {
-      if (hint?.type === 'found' && hint.user) {
+      if (hint?.type === 'found' && hint.user)
         addCollaborator({ type: 'user', value: val, user_id: hint.user.id, name: hint.user.name || hint.user.email })
-      }
     } else {
       addCollaborator({ type: 'text', value: val })
     }
@@ -89,48 +83,50 @@ function CollaboratorsField({ collaborators, onChange }) {
     const val = input.trim()
     if (!val) return
     if (isEmail(val)) {
-      if (hint?.type === 'found' && hint.user) {
+      if (hint?.type === 'found' && hint.user)
         addCollaborator({ type: 'user', value: val, user_id: hint.user.id, name: hint.user.name || hint.user.email })
-      }
     } else {
       addCollaborator({ type: 'text', value: val })
     }
   }
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Colaboradores</label>
-      <p className="text-xs text-gray-400 mb-2">
+    <div className="collab__wrap">
+      <label className="collab__label">Colaboradores</label>
+      <p className="collab__hint">
         Correo para buscar usuarios registrados, o nombre/apellido como texto plano. Enter o coma para añadir.
       </p>
       {collaborators.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-2">
+        <div className="collab__chips">
           {collaborators.map((c, i) => (
             <CollaboratorChip key={i} collab={c}
               onRemove={() => onChange(collaborators.filter((_, idx) => idx !== i))} />
           ))}
         </div>
       )}
-      <div className="flex gap-2">
-        <div className="flex-1 relative">
-          <input type="text" value={input} onChange={handleInput} onKeyDown={handleKeyDown}
+      <div className="collab__row">
+        <div className="collab__inputWrap">
+          <input
+            type="text" value={input} onChange={handleInput} onKeyDown={handleKeyDown}
             placeholder="correo@usal.es o Nombre Apellido..."
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          {searching && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 animate-pulse">Buscando...</span>}
+            className="collab__input"
+          />
+          {searching && <span className="collab__searching">Buscando...</span>}
         </div>
-        <button type="button" onClick={handleAddClick}
+        <button
+          type="button" onClick={handleAddClick}
           disabled={!input.trim() || (isEmail(input.trim()) && hint?.type !== 'found')}
-          className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-gray-700 rounded-lg transition border border-gray-300">
+          className="collab__addBtn"
+        >
           Añadir
         </button>
       </div>
       {hint && (
-        <p className={`text-xs mt-1.5 ${hint.type === 'found' ? 'text-green-600' : 'text-red-500'}`}>
+        <p className={hint.type === 'found' ? 'collab__hint--found' : 'collab__hint--notfound'}>
           {hint.type === 'found' ? '✓ ' : '✗ '}{hint.message}
           {hint.type === 'found' && (
-            <button type="button"
-              onClick={() => addCollaborator({ type: 'user', value: input.trim(), user_id: hint.user.id, name: hint.user.name || hint.user.email })}
-              className="ml-2 underline hover:no-underline">
+            <button type="button" className="collab__hintBtn"
+              onClick={() => addCollaborator({ type: 'user', value: input.trim(), user_id: hint.user.id, name: hint.user.name || hint.user.email })}>
               Añadir
             </button>
           )}
@@ -276,141 +272,120 @@ export default function ProfilePage() {
   }
 
   const statusLabel = (status) => ({
-    pending: { text: 'Pendiente', color: 'bg-yellow-100 text-yellow-700' },
-    approved: { text: 'Aprobada', color: 'bg-green-100 text-green-700' },
-    rejected: { text: 'Rechazada', color: 'bg-red-100 text-red-700' },
-  }[status] || { text: status, color: 'bg-gray-100 text-gray-700' })
+    pending:  { text: 'Pendiente', cls: 'statusBadge statusBadge--pending' },
+    approved: { text: 'Aprobada',  cls: 'statusBadge statusBadge--approved' },
+    rejected: { text: 'Rechazada', cls: 'statusBadge statusBadge--rejected' },
+  }[status] || { text: status, cls: 'statusBadge' })
 
   const typeLabel = (type) => ({
     create: 'Crear proyecto', update: 'Editar proyecto', delete: 'Eliminar proyecto'
   }[type] || type)
 
   const currentAvatar = avatarPreview || avatarUrl(user?.profile_picture)
-  const initials = (user?.name || user?.email || '?').charAt(0).toUpperCase()
 
   return (
     <div className="page">
       <Navbar />
+      <main className="main">
 
-      <header className="hero">
-        <div className="hero__inner">
-          <div className="hero__content">
-            <h1 className="hero__title">Mi Perfil</h1>
-            <p className="hero__subtitle">Gestiona tu información y proyectos</p>
+        {/* Banner + Avatar */}
+        <div className="profileBanner__wrap">
+          <div className="profileBanner">
+            <svg className="profileBanner__svg" viewBox="0 0 420 420">
+              <circle cx="300" cy="100" r="220" fill="white" />
+              <circle cx="180" cy="340" r="140" fill="white" />
+            </svg>
+          </div>
+          <div className="profileAvatar__anchor">
+            <div className="profileAvatar">
+              {currentAvatar
+                ? <img src={currentAvatar} alt="Avatar" />
+                : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" className="profileAvatar__placeholder" />
+              }
+            </div>
+            <button
+              type="button"
+              className="profileAvatar__cameraBtn"
+              onClick={() => { setEditing(true); setSaveSuccess(false); setTimeout(() => avatarInputRef.current?.click(), 50) }}
+            >
+              📷
+            </button>
+            <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png" onChange={handleAvatarChange} style={{ display: 'none' }} />
           </div>
         </div>
-      </header>
 
-      <main className="content" style={{ maxWidth: '900px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Info del usuario */}
+        <div className="profileInfo">
+          <h1 className="profileInfo__name">{user?.name || '—'}</h1>
+          <p className="profileInfo__email">{user?.email}</p>
+          {user?.bio && <p className="profileInfo__bio">{user.bio}</p>}
 
-          {/* ── Mi Perfil ── */}
-          <div className="about__card" style={{ padding: "32px" }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h2 className="about__h2" style={{ marginBottom: 0 }}>Información personal</h2>
-              {!editing && (
-                <button onClick={() => { setEditing(true); setSaveSuccess(false) }}
-                  style={{ fontSize: '13px', color: '#385e9d', border: '1px solid #bfdbfe', padding: '6px 14px', borderRadius: '8px', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Editar
-                </button>
-              )}
-            </div>
+          {!editing ? (
+            <button className="profileInfo__editBtn" onClick={() => { setEditing(true); setSaveSuccess(false) }}>
+              ✏️ Editar perfil
+            </button>
+          ) : (
+            <div className="profileInfo__editSpacer" />
+          )}
 
-            {saveSuccess && (
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', fontSize: '14px', padding: '12px 16px', borderRadius: '10px', marginBottom: '16px' }}>
-                Perfil actualizado correctamente.
-              </div>
-            )}
+          {saveSuccess && (
+            <div className="profileInfo__successMsg">Perfil actualizado correctamente.</div>
+          )}
 
-            {editing ? (
-              <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                {saveError && <div style={{ background: '#fef2f2', color: '#dc2626', fontSize: '14px', padding: '12px 16px', borderRadius: '10px' }}>{saveError}</div>}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', background: '#dbeafe', border: '2px solid #bfdbfe' }}>
-                      {currentAvatar
-                        ? <img src={currentAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
-                    </div>
-                    <button type="button" onClick={() => avatarInputRef.current?.click()}
-                      style={{ position: 'absolute', bottom: '-4px', right: '-4px', background: '#2563eb', color: '#fff', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', border: 'none', cursor: 'pointer' }}>
-                      📷
-                    </button>
-                    <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png" onChange={handleAvatarChange} style={{ display: 'none' }} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>Foto de perfil</p>
-                    <p style={{ fontSize: '12px', color: '#9ca3af' }}>JPG o PNG · máx. 5MB</p>
-                    {avatarFile && <p style={{ fontSize: '12px', color: '#16a34a', marginTop: '4px' }}>✓ {avatarFile.name}</p>}
-                  </div>
-                </div>
+          {editing && (
+            <div className="profileEditForm">
+              <h3 className="profileEditForm__title">Editar perfil</h3>
+              {saveError && <div className="profileEditForm__error">{saveError}</div>}
+              <form onSubmit={handleSaveProfile} className="profileEditForm__fields">
+                {avatarFile && <p className="profileEditForm__avatarHint">✓ Nueva foto: {avatarFile.name}</p>}
                 <div>
                   <label className="authCard__label">Nombre</label>
-                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    className="authCard__input" placeholder="Tu nombre completo" />
+                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="authCard__input" placeholder="Tu nombre completo" />
                 </div>
                 <div>
                   <label className="authCard__label">Biografía</label>
-                  <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={3} maxLength={1000}
-                    style={{ width: '100%', border: '1px solid rgba(17,24,39,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '15px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
-                    placeholder="Cuéntanos algo sobre ti..." />
+                  <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={3} maxLength={1000} className="modal__textarea" placeholder="Cuéntanos algo sobre ti..." />
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button type="submit" disabled={saveLoading}
-                    className="btn btn--primary btn--sm">
+                <div className="profileEditForm__actions">
+                  <button type="submit" disabled={saveLoading} className="btn btn--primary btn--sm">
                     {saveLoading ? 'Guardando...' : 'Guardar cambios'}
                   </button>
-                  <button type="button" onClick={cancelEdit}
-                    style={{ border: '1px solid #d1d5db', background: 'transparent', color: '#374151', padding: '7px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Cancelar
-                  </button>
+                  <button type="button" onClick={cancelEdit} className="profileEditForm__cancelBtn">Cancelar</button>
                 </div>
               </form>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', background: '#dbeafe', border: '2px solid #e5e7eb', flexShrink: 0 }}>
-                  {currentAvatar
-                    ? <img src={currentAvatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
-                </div>
-                <div>
-                  <p style={{ fontWeight: '700', color: '#111827', fontSize: '18px', marginBottom: '4px' }}>{user?.name || '—'}</p>
-                  <p style={{ fontSize: '14px', color: '#6b7280' }}>{user?.email}</p>
-                  {user?.bio && <p style={{ fontSize: '14px', color: '#374151', marginTop: '8px' }}>{user.bio}</p>}
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* ── Mis proyectos ── */}
-          <div className="about__card" style={{ padding: "32px" }}>
-            <h2 className="about__h2">Mis Proyectos</h2>
+        {/* Divisor */}
+        <div className="profileDivider"><hr /></div>
+
+        {/* Contenido */}
+        <div className="profileContent">
+
+          {/* Mis proyectos */}
+          <div className="profileCard">
+            <div className="profileCard__header">
+              <h2 className="profileCard__title">Mis Proyectos</h2>
+            </div>
             {loadingProjects ? (
-              <p style={{ fontSize: '14px', color: '#9ca3af' }}>Cargando proyectos...</p>
+              <p className="about__meta">Cargando proyectos...</p>
             ) : projects.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '32px 0' }}>
-                <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '12px' }}>No tienes proyectos publicados aún.</p>
+              <div className="profileCard__empty">
+                <p className="profileCard__emptyText">No tienes proyectos publicados aún.</p>
                 <Link to="/submit" className="btn btn--primary btn--sm">+ Subir proyecto</Link>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="profileCard__list">
                 {projects.map(project => (
-                  <div key={project.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '18px 20px', gap: '12px' }}>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <Link to={`/projects/${project.id}`} style={{ fontWeight: '700', color: '#111827', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {project.title}
-                      </Link>
-                      <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>{project.subject?.name} · {project.year}</p>
+                  <div key={project.id} className="profileCard__item">
+                    <div className="profileCard__itemInfo">
+                      <Link to={`/projects/${project.id}`} className="profileCard__itemTitle">{project.title}</Link>
+                      <p className="profileCard__itemMeta">{project.subject?.name} · {project.year}</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                      <button onClick={() => openEdit(project)}
-                        style={{ fontSize: '12px', border: '1px solid #bfdbfe', color: '#2563eb', background: 'transparent', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit' }}>
-                        ✏️ Editar
-                      </button>
-                      <button onClick={() => setDeletingProject(project)}
-                        style={{ fontSize: '12px', border: '1px solid #fecaca', color: '#dc2626', background: 'transparent', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit' }}>
-                        🗑️ Eliminar
-                      </button>
+                    <div className="profileCard__itemActions">
+                      <button onClick={() => openEdit(project)} className="profileCard__editBtn">✏️ Editar</button>
+                      <button onClick={() => setDeletingProject(project)} className="profileCard__deleteBtn">🗑️ Eliminar</button>
                     </div>
                   </div>
                 ))}
@@ -418,28 +393,30 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* ── Mis solicitudes ── */}
-          <div className="about__card" style={{ padding: "32px" }}>
-            <h2 className="about__h2">Mis Solicitudes</h2>
+          {/* Mis solicitudes */}
+          <div className="profileCard">
+            <div className="profileCard__header">
+              <h2 className="profileCard__title">Mis Solicitudes</h2>
+            </div>
             {loadingRequests ? (
-              <p style={{ fontSize: '14px', color: '#9ca3af' }}>Cargando solicitudes...</p>
+              <p className="about__meta">Cargando solicitudes...</p>
             ) : requests.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af', fontSize: '14px' }}>No has enviado ninguna solicitud aún.</p>
+              <p className="profileCard__empty">No has enviado ninguna solicitud aún.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="profileCard__list">
                 {requests.map(req => {
-                  const { text, color } = statusLabel(req.status)
+                  const { text, cls } = statusLabel(req.status)
                   return (
-                    <div key={req.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '16px 20px', fontSize: '14px', gap: '12px' }}>
+                    <div key={req.id} className="profileCard__reqItem">
                       <div>
-                        <span style={{ fontWeight: '700', color: '#111827' }}>{req.data?.title || `Solicitud #${req.id}`}</span>
-                        <span style={{ color: '#9ca3af', marginLeft: '8px', fontSize: '12px' }}>{typeLabel(req.type)}</span>
-                        <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px' }}>
+                        <span className="profileCard__reqTitle">{req.data?.title || `Solicitud #${req.id}`}</span>
+                        <span className="profileCard__reqType">{typeLabel(req.type)}</span>
+                        <p className="profileCard__reqDate">
                           {new Date(req.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </p>
-                        {req.admin_message && <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>Motivo: {req.admin_message}</p>}
+                        {req.admin_message && <p className="profileCard__reqReason">Motivo: {req.admin_message}</p>}
                       </div>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${color}`}>{text}</span>
+                      <span className={cls}>{text}</span>
                     </div>
                   )
                 })}
@@ -449,41 +426,37 @@ export default function ProfilePage() {
 
         </div>
       </main>
-
       <Footer />
 
       {/* Modal editar proyecto */}
       {editingProject && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
-          <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', padding: '28px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h3 style={{ fontWeight: '900', fontSize: '18px', color: '#111827', margin: 0 }}>Solicitar edición</h3>
-              <button onClick={() => setEditingProject(null)} style={{ background: 'transparent', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#6b7280' }}>✕</button>
+        <div className="modal__overlay">
+          <div className="modal__box">
+            <div className="modal__header">
+              <h3 className="modal__title">Solicitar edición</h3>
+              <button onClick={() => setEditingProject(null)} className="modal__closeBtn">✕</button>
             </div>
-            <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '16px' }}>
+            <p className="modal__subtitle">
               Se enviará una solicitud de edición. Un administrador la revisará antes de aplicar los cambios.
             </p>
-            {editError && <div style={{ background: '#fef2f2', color: '#dc2626', fontSize: '14px', padding: '12px 16px', borderRadius: '10px', marginBottom: '16px' }}>{editError}</div>}
-            <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {editError && <div className="modal__error">{editError}</div>}
+            <form onSubmit={handleEditSubmit} className="modal__form">
               <div>
                 <label className="authCard__label">Título *</label>
                 <input type="text" value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} required className="authCard__input" />
               </div>
               <div>
                 <label className="authCard__label">Descripción breve *</label>
-                <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} required rows={2}
-                  style={{ width: '100%', border: '1px solid rgba(17,24,39,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '15px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} required rows={2} className="modal__textarea" />
               </div>
               <div>
                 <label className="authCard__label">Descripción completa</label>
-                <textarea value={editForm.full_description} onChange={e => setEditForm(f => ({ ...f, full_description: e.target.value }))} rows={3}
-                  style={{ width: '100%', border: '1px solid rgba(17,24,39,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '15px', fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+                <textarea value={editForm.full_description} onChange={e => setEditForm(f => ({ ...f, full_description: e.target.value }))} rows={3} className="modal__textarea" />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="modal__grid2">
                 <div>
                   <label className="authCard__label">Asignatura</label>
-                  <select value={editForm.subject_id} onChange={e => setEditForm(f => ({ ...f, subject_id: e.target.value }))}
-                    style={{ width: '100%', border: '1px solid rgba(17,24,39,0.15)', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', background: '#fff', boxSizing: 'border-box' }}>
+                  <select value={editForm.subject_id} onChange={e => setEditForm(f => ({ ...f, subject_id: e.target.value }))} className="modal__select">
                     <option value="">Selecciona...</option>
                     {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
@@ -502,27 +475,20 @@ export default function ProfilePage() {
                 <input type="text" value={editForm.tags} onChange={e => setEditForm(f => ({ ...f, tags: e.target.value }))} className="authCard__input" />
               </div>
               <CollaboratorsField collaborators={editCollaborators} onChange={setEditCollaborators} />
-              <p style={{ fontSize: '12px', color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '10px 14px', margin: 0 }}>
+              <p className="modal__warn">
                 ⚠️ La lista de colaboradores que envíes <strong>reemplazará</strong> la actual.
               </p>
-              <div style={{ border: '1px solid #e5e7eb', background: '#f9fafb', borderRadius: '10px', padding: '14px' }}>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
-                  <input type="checkbox" checked={editForm.authorization} onChange={e => setEditForm(f => ({ ...f, authorization: e.target.checked }))}
-                    style={{ marginTop: '2px', width: '16px', height: '16px' }} />
-                  <span style={{ fontSize: '14px', color: '#374151' }}>
-                    Confirmo que tengo autorización para editar este proyecto. <span style={{ color: '#dc2626' }}>*</span>
-                  </span>
+              <div className="modal__authBox">
+                <label className="modal__authLabel">
+                  <input type="checkbox" checked={editForm.authorization} onChange={e => setEditForm(f => ({ ...f, authorization: e.target.checked }))} />
+                  <span className="modal__authText">Confirmo que tengo autorización para editar este proyecto. <span style={{color:'#dc2626'}}>*</span></span>
                 </label>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button type="submit" disabled={editLoading || !editForm.authorization}
-                  className="btn btn--primary" style={{ flex: 1, justifyContent: 'center', borderRadius: '10px' }}>
+              <div className="modal__actions">
+                <button type="submit" disabled={editLoading || !editForm.authorization} className="btn btn--primary modal__submitBtn">
                   {editLoading ? 'Enviando...' : 'Enviar solicitud'}
                 </button>
-                <button type="button" onClick={() => setEditingProject(null)}
-                  style={{ border: '1px solid #d1d5db', background: 'transparent', color: '#374151', padding: '12px 18px', borderRadius: '10px', fontSize: '14px', fontWeight: '800', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Cancelar
-                </button>
+                <button type="button" onClick={() => setEditingProject(null)} className="modal__cancelBtn">Cancelar</button>
               </div>
             </form>
           </div>
@@ -531,20 +497,16 @@ export default function ProfilePage() {
 
       {/* Modal confirmar eliminación */}
       {deletingProject && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
-          <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: '360px', padding: '28px', textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🗑️</div>
-            <h3 style={{ fontWeight: '900', fontSize: '18px', color: '#111827', marginBottom: '8px' }}>¿Solicitar eliminación?</h3>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>Vas a solicitar la eliminación de:</p>
-            <p style={{ fontWeight: '700', color: '#111827', marginBottom: '16px' }}>"{deletingProject.title}"</p>
-            <p style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '24px' }}>Un administrador revisará la solicitud antes de eliminar el proyecto.</p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setDeletingProject(null)}
-                style={{ flex: 1, border: '1px solid #d1d5db', background: 'transparent', color: '#374151', padding: '10px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
-                Cancelar
-              </button>
-              <button onClick={handleDeleteConfirm} disabled={deleteLoading}
-                style={{ flex: 1, background: '#dc2626', color: '#fff', border: 'none', padding: '10px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: deleteLoading ? 0.5 : 1 }}>
+        <div className="modal__overlay">
+          <div className="modal__box modal__box--sm">
+            <div className="modal__icon">🗑️</div>
+            <h3 className="modal__deleteTitle">¿Solicitar eliminación?</h3>
+            <p className="modal__deleteDesc">Vas a solicitar la eliminación de:</p>
+            <p className="modal__deleteTarget">"{deletingProject.title}"</p>
+            <p className="modal__deleteNote">Un administrador revisará la solicitud antes de eliminar el proyecto.</p>
+            <div className="modal__deleteActions">
+              <button onClick={() => setDeletingProject(null)} className="modal__cancelBtnAlt">Cancelar</button>
+              <button onClick={handleDeleteConfirm} disabled={deleteLoading} className="modal__confirmBtn">
                 {deleteLoading ? 'Enviando...' : 'Sí, solicitar'}
               </button>
             </div>

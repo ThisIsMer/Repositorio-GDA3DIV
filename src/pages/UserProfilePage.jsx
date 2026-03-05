@@ -37,9 +37,7 @@ export default function UserProfilePage() {
   if (loading) return (
     <div className="page">
       <Navbar />
-      <main className="content">
-        <div className="empty">Cargando perfil...</div>
-      </main>
+      <main className="content"><div className="empty">Cargando perfil...</div></main>
       <Footer />
     </div>
   )
@@ -47,10 +45,10 @@ export default function UserProfilePage() {
   if (error) return (
     <div className="page">
       <Navbar />
-      <main className="content" style={{ textAlign: 'center', paddingTop: '80px' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>😕</div>
-        <p style={{ color: '#6b7280', marginBottom: '16px' }}>{error}</p>
-        <Link to="/" style={{ color: '#385e9d', textDecoration: 'none', fontSize: '14px' }}>← Volver al inicio</Link>
+      <main className="content userProfile__error">
+        <div className="userProfile__errorIcon">😕</div>
+        <p className="userProfile__errorText">{error}</p>
+        <Link to="/" className="about__backLink">← Volver al inicio</Link>
       </main>
       <Footer />
     </div>
@@ -59,83 +57,94 @@ export default function UserProfilePage() {
   const user = data.user ?? {}
   const projects = data.projects ?? (Array.isArray(data) ? data : [])
   const avatar = avatarUrl(user.profile_picture)
-  const initials = (user.name || user.email || '?').charAt(0).toUpperCase()
 
   return (
     <div className="page">
       <Navbar />
+      <main className="main">
 
-      <header className="hero">
-        <div className="hero__inner">
-          <div className="hero__content" style={{ paddingBottom: '32px' }}>
-            {/* Avatar grande en el hero */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-              <div style={{ width: '96px', height: '96px', borderRadius: '50%', overflow: 'hidden', background: '#fff', border: '4px solid rgba(255,255,255,0.3)', flexShrink: 0 }}>
-                {avatar
-                  ? <img src={avatar} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d22020', fontSize: '36px', fontWeight: '900' }}>{initials}</div>}
-              </div>
+        {/* Banner + Avatar */}
+        <div className="profileBanner__wrap">
+          <div className="profileBanner">
+            <svg className="profileBanner__svg" viewBox="0 0 420 420">
+              <circle cx="300" cy="100" r="220" fill="white" />
+              <circle cx="180" cy="340" r="140" fill="white" />
+            </svg>
+          </div>
+          <div className="profileAvatar__anchor">
+            <div className="profileAvatar">
+              {avatar
+                ? <img src={avatar} alt={user.name} />
+                : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" className="profileAvatar__placeholder" />
+              }
             </div>
-            <h1 className="hero__title" style={{ fontSize: '36px' }}>{user.name || 'Usuario'}</h1>
-            {user.bio && <p className="hero__subtitle" style={{ marginTop: '8px', fontSize: '16px' }}>{user.bio}</p>}
-            <p style={{ color: 'rgba(155,176,208,0.8)', fontSize: '14px', marginTop: '8px' }}>
-              {projects.length} proyecto{projects.length !== 1 ? 's' : ''} publicado{projects.length !== 1 ? 's' : ''}
-            </p>
           </div>
         </div>
-      </header>
 
-      <main className="content">
-
-        <div style={{ marginBottom: '16px' }}>
-          <Link to="/" style={{ color: '#385e9d', textDecoration: 'none', fontSize: '14px', fontWeight: '700' }}>← Volver al inicio</Link>
+        {/* Info del usuario */}
+        <div className="profileInfo">
+          <h1 className="profileInfo__name">{user.name || 'Usuario'}</h1>
+          {user.email && <p className="profileInfo__email">{user.email}</p>}
+          {user.bio && <p className="profileInfo__bio">{user.bio}</p>}
+          <div className="profileInfo__pill">
+            📁 {projects.length} proyecto{projects.length !== 1 ? 's' : ''} publicado{projects.length !== 1 ? 's' : ''}
+          </div>
         </div>
 
-        {projects.length === 0 ? (
-          <div style={{ textAlign: 'center', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '64px 24px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
-            <p style={{ color: '#6b7280', fontSize: '16px' }}>Este usuario no tiene proyectos publicados.</p>
+        {/* Divisor */}
+        <div className="profileDivider"><hr /></div>
+
+        {/* Proyectos */}
+        <div className="userProfile__projects">
+          <div className="userProfile__projectsHeader">
+            <h2 className="userProfile__projectsTitle">Proyectos</h2>
+            <Link to="/" className="userProfile__backLink">← Volver al inicio</Link>
           </div>
-        ) : (
-          <div className="grid">
-            {projects.map(project => {
-              const cover = coverFromProject(project)
-              return (
-                <Link key={project.id} to={`/projects/${project.id}`} className="cardLink">
-                  <article className="card">
-                    <div className="thumb">
-                      {cover ? (
-                        <img src={cover} alt={project.title} className="thumbImg"
-                          onError={e => {
-                            e.target.parentNode.innerHTML = '<div class="thumbFallback"><span class="thumbIcon">📁</span></div>'
-                          }} />
-                      ) : (
-                        <div className="thumbFallback"><span className="thumbIcon">📁</span></div>
-                      )}
-                    </div>
-                    <div className="cardBody">
-                      <div className="cardTop">
-                        <span className="badge">{project.subject?.name}</span>
-                        {project.year && <span className="year">{project.year}</span>}
+
+          {projects.length === 0 ? (
+            <div className="userProfile__empty">
+              <div className="userProfile__emptyIcon">📭</div>
+              <p className="userProfile__emptyText">Este usuario no tiene proyectos publicados.</p>
+            </div>
+          ) : (
+            <div className="grid">
+              {projects.map(project => {
+                const cover = coverFromProject(project)
+                return (
+                  <Link key={project.id} to={`/projects/${project.id}`} className="cardLink">
+                    <article className="card">
+                      <div className="thumb">
+                        {cover ? (
+                          <img src={cover} alt={project.title} className="thumbImg"
+                            onError={e => { e.target.parentNode.innerHTML = '<div class="thumbFallback"><span class="thumbIcon">📁</span></div>' }} />
+                        ) : (
+                          <div className="thumbFallback"><span className="thumbIcon">📁</span></div>
+                        )}
                       </div>
-                      <h3 className="cardTitle">{project.title}</h3>
-                      <p className="cardDesc">{project.description}</p>
-                      {project.tags?.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>
-                          {project.tags.slice(0, 3).map(tag => (
-                            <span key={tag} style={{ fontSize: '11px', background: '#f3f4f6', color: '#6b7280', padding: '2px 8px', borderRadius: '999px' }}>{tag}</span>
-                          ))}
+                      <div className="cardBody">
+                        <div className="cardTop">
+                          <span className="badge">{project.subject?.name}</span>
+                          {project.year && <span className="year">{project.year}</span>}
                         </div>
-                      )}
-                    </div>
-                  </article>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </main>
+                        <h3 className="cardTitle">{project.title}</h3>
+                        <p className="cardDesc">{project.description}</p>
+                        {project.tags?.length > 0 && (
+                          <div className="detail__tagsList" style={{ marginTop: '8px' }}>
+                            {project.tags.slice(0, 3).map(tag => (
+                              <span key={tag} className="detail__tagChip">{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </div>
 
+      </main>
       <Footer />
     </div>
   )
