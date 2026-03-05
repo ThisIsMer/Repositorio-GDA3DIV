@@ -24,7 +24,7 @@ html, body {
 
 body {
   font-family: "LatoCustom", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #ffffff;
+  background: #f3f4f6;
   color: #111827;
 }
 
@@ -234,33 +234,52 @@ body {
 .hero__logo { margin-top: 28px; display: flex; justify-content: center; }
 .hero__logo img { height: 60px; width: auto; opacity: 0.9; }
 
-/* Indicador de filtro activo */
-.hero__activeFilter {
+/* Indicador de filtros activos (pills) */
+.hero__activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.hero__filterPill {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  gap: 6px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
   border-radius: 999px;
-  padding: 6px 16px;
-  font-size: 14px;
+  padding: 5px 12px 5px 14px;
+  font-size: 13px;
   color: #fff;
+  font-weight: 700;
 }
-
-.hero__clearFilter {
+.hero__filterPillClose {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
   font-family: inherit;
   padding: 0;
-  transition: color 0.15s;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
-.hero__clearFilter:hover {
-  color: #fff;
+.hero__filterPillClose:hover { color: #fff; }
+.hero__clearAll {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.35);
+  cursor: pointer;
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 5px 12px;
+  border-radius: 999px;
+  transition: all 0.15s;
 }
+.hero__clearAll:hover { background: rgba(255,255,255,0.15); color: #fff; }
 
 /* ===== CAMPOS ===== */
 .field {
@@ -313,10 +332,28 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   white-space: nowrap;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
+.btn--filters svg { flex-shrink: 0; }
 .btn--filters:hover {
   background: rgba(255, 255, 255, 0.25);
   color: #fff;
+}
+.btn--filters__badge {
+  background: #fff;
+  color: #d22020;
+  font-size: 11px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
 }
 
 /* ===== CONTENIDO ===== */
@@ -596,6 +633,84 @@ body {
   border-color: rgba(210, 32, 32, 0.4);
   color: #d22020;
   font-weight: 900;
+}
+
+/* Drawer header right side */
+.sideMenu__topRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sideMenu__clearBtn {
+  font-size: 12px;
+  color: #d22020;
+  background: rgba(210,32,32,0.08);
+  border: 1px solid rgba(210,32,32,0.2);
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+.sideMenu__clearBtn:hover { background: rgba(210,32,32,0.14); }
+
+/* Tag count hint */
+.sideMenu__tagCount {
+  font-size: 10px;
+  color: #d22020;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Tag grid — stackeable chips */
+.sideMenu__tagGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 4px;
+}
+.sideMenu__tagChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+.sideMenu__tagChip:hover {
+  border-color: rgba(210,32,32,0.35);
+  color: #d22020;
+  background: rgba(210,32,32,0.06);
+}
+.sideMenu__tagChip.is-active {
+  background: rgba(210,32,32,0.12);
+  border-color: rgba(210,32,32,0.4);
+  color: #d22020;
+}
+.sideMenu__tagCheck {
+  font-size: 10px;
+  font-weight: 900;
+}
+
+/* Footer with apply button */
+.sideMenu__footer {
+  padding: 12px 6px 4px;
+  border-top: 1px solid rgba(17,24,39,0.08);
+  margin-top: 8px;
+}
+.sideMenu__applyBtn {
+  width: 100%;
+  justify-content: center;
+  border-radius: 12px;
 }
 
 /* ===== MENÚ MÓVIL FULLSCREEN ===== */
