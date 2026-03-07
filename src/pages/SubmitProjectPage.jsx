@@ -27,17 +27,49 @@ function isEmail(str) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str.trim())
 }
 
+// ── Iconos SVG inline ─────────────────────────────────────────────────────────
+const IconCheck = ({ size = 12 }) => (
+  <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" width={size} height={size}
+    style={{ display: 'inline', verticalAlign: 'middle', opacity: 0.8 }} />
+)
+const IconUser = () => (
+  <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="" width="12" height="12"
+    style={{ opacity: 0.65, flexShrink: 0 }} />
+)
+const IconVideo = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+  </svg>
+)
+const IconTrash = ({ size = 12 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+    <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+  </svg>
+)
+const IconInfo = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+)
+const IconSuccess = () => (
+  <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" width="52" height="52" style={{ opacity: 0.85 }} />
+)
+
+// ── Colaborador chip ──────────────────────────────────────────────────────────
 function CollaboratorChip({ collab, onRemove }) {
   const cls = collab.type === 'user' ? 'collab__chip collab__chip--user' : 'collab__chip collab__chip--text'
   return (
     <span className={cls}>
-      {collab.type === 'user' && '👤 '}
+      {collab.type === 'user' && <IconUser />}
       {collab.name || collab.value}
       {onRemove && <button type="button" onClick={onRemove} className="collab__chipBtn">✕</button>}
     </span>
   )
 }
 
+// ── Campo colaboradores ───────────────────────────────────────────────────────
 function CollaboratorsField({ collaborators, onChange }) {
   const [input, setInput] = useState('')
   const [searching, setSearching] = useState(false)
@@ -129,7 +161,11 @@ function CollaboratorsField({ collaborators, onChange }) {
       </div>
       {hint && (
         <p className={hint.type === 'found' ? 'collab__hint--found' : 'collab__hint--notfound'}>
-          {hint.type === 'found' ? '✓ ' : '✗ '}{hint.message}
+          {hint.type === 'found'
+            ? <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+            : <span style={{ fontWeight: 700, marginRight: 4 }}>✗</span>
+          }
+          {hint.message}
           {hint.type === 'found' && (
             <button type="button" className="collab__hintBtn"
               onClick={() => addCollaborator({ type: 'user', value: input.trim(), user_id: hint.user.id, name: hint.user.name || hint.user.email })}>
@@ -142,18 +178,19 @@ function CollaboratorsField({ collaborators, onChange }) {
   )
 }
 
+// ── Página principal ──────────────────────────────────────────────────────────
 export default function SubmitProjectPage() {
   const navigate = useNavigate()
   const imageInputRef = useRef(null)
   const videoInputRef = useRef(null)
 
-  const [subjects, setSubjects] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
+  const [subjects, setSubjects]       = useState([])
+  const [loading, setLoading]         = useState(false)
+  const [success, setSuccess]         = useState(false)
+  const [error, setError]             = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
-  const [images, setImages] = useState([])
-  const [videos, setVideos] = useState([])
+  const [images, setImages]           = useState([])
+  const [videos, setVideos]           = useState([])
   const [collaborators, setCollaborators] = useState([])
 
   const [form, setForm] = useState({
@@ -250,8 +287,8 @@ export default function SubmitProjectPage() {
       <Navbar />
       <main className="content submitSuccess">
         <div className="submitSuccess__card">
-          <div className="submitSuccess__icon"></div>
-          <h2 className="submitSuccess__title">¡Solicitud enviada!</h2>
+          <div className="submitSuccess__icon"><IconSuccess /></div>
+          <h2 className="submitSuccess__title">Solicitud enviada</h2>
           <p className="submitSuccess__desc">Tu proyecto ha sido enviado para revisión. Un administrador lo aprobará próximamente.</p>
           <div className="submitSuccess__actions">
             <button onClick={() => navigate('/')} className="btn btn--primary">Volver al inicio</button>
@@ -285,7 +322,6 @@ export default function SubmitProjectPage() {
 
           <form onSubmit={handleSubmit} className="submitForm">
 
-            {/* Título */}
             <div>
               <label className="authCard__label">Título <span className="text-req">*</span></label>
               <input type="text" name="title" value={form.title} onChange={handleChange} required
@@ -293,7 +329,6 @@ export default function SubmitProjectPage() {
               {fieldErrors.title && <p className="submitForm__fieldError">{fieldErrors.title}</p>}
             </div>
 
-            {/* Descripción breve */}
             <div>
               <label className="authCard__label">Descripción breve <span className="text-req">*</span></label>
               <textarea name="description" value={form.description} onChange={handleChange} required rows={2}
@@ -301,7 +336,6 @@ export default function SubmitProjectPage() {
                 className={`modal__textarea${fieldErrors.description ? ' modal__textarea--error' : ''}`} />
             </div>
 
-            {/* Descripción completa */}
             <div>
               <label className="authCard__label">Descripción completa <span className="authCard__optional">(opcional)</span></label>
               <textarea name="full_description" value={form.full_description} onChange={handleChange} rows={4}
@@ -309,7 +343,6 @@ export default function SubmitProjectPage() {
                 className="modal__textarea" />
             </div>
 
-            {/* Asignatura y Año */}
             <div className="modal__grid2">
               <div>
                 <label className="authCard__label">Asignatura <span className="text-req">*</span></label>
@@ -326,21 +359,18 @@ export default function SubmitProjectPage() {
               </div>
             </div>
 
-            {/* Demo */}
             <div>
               <label className="authCard__label">Enlace al juego / demo <span className="authCard__optional">(opcional)</span></label>
               <input type="url" name="game_url" value={form.game_url} onChange={handleChange}
                 placeholder="https://itch.io/tu-juego" className="authCard__input" />
             </div>
 
-            {/* Tags */}
             <div>
               <label className="authCard__label">Etiquetas <span className="authCard__optional">(separadas por coma)</span></label>
               <input type="text" name="tags" value={form.tags} onChange={handleChange}
                 placeholder="Unity, C#, Puzzle, 2D..." className="authCard__input" />
             </div>
 
-            {/* Colaboradores */}
             <CollaboratorsField collaborators={collaborators} onChange={setCollaborators} />
 
             {/* Imágenes */}
@@ -351,11 +381,13 @@ export default function SubmitProjectPage() {
                 </label>
                 {selectedImages > 0 && (
                   <button type="button" onClick={removeSelectedImages} className="submitForm__removeBtn">
-                     Eliminar ({selectedImages})
+                    <IconTrash size={11} /> Eliminar ({selectedImages})
                   </button>
                 )}
               </div>
-              <p className="submitForm__tip"> <strong>Medidas óptimas:</strong> 1920×1080px (16:9). Mínimo 1280×720px.</p>
+              <p className="submitForm__tip" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <IconInfo /> <span><strong>Medidas óptimas:</strong> 1920×1080px (16:9). Mínimo 1280×720px.</span>
+              </p>
               <button type="button" onClick={() => imageInputRef.current?.click()} className="submitForm__dropzone">
                 + Añadir imágenes
               </button>
@@ -368,7 +400,11 @@ export default function SubmitProjectPage() {
                         className={`submitForm__imgThumb${img.selected ? ' submitForm__imgThumb--selected' : ''}`}>
                         <img src={img.preview} alt={img.file.name} />
                         {img.selected && (
-                          <div className="submitForm__imgOverlay"><span className="submitForm__imgCheck">✓</span></div>
+                          <div className="submitForm__imgOverlay">
+                            <span className="submitForm__imgCheck">
+                              <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" width="12" height="12" />
+                            </span>
+                          </div>
                         )}
                         <div className="submitForm__imgSize">{formatBytes(img.file.size)}</div>
                       </div>
@@ -387,11 +423,13 @@ export default function SubmitProjectPage() {
                 </label>
                 {selectedVideos > 0 && (
                   <button type="button" onClick={removeSelectedVideos} className="submitForm__removeBtn">
-                    🗑 Eliminar ({selectedVideos})
+                    <IconTrash size={11} /> Eliminar ({selectedVideos})
                   </button>
                 )}
               </div>
-              <p className="submitForm__tip"> <strong>Medidas óptimas:</strong> 1920×1080px a 30fps, formato MP4 (H.264). Duración: 1–3 minutos.</p>
+              <p className="submitForm__tip" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <IconInfo /> <span><strong>Medidas óptimas:</strong> 1920×1080px a 30fps, formato MP4 (H.264). Duración: 1–3 minutos.</span>
+              </p>
               <button type="button" onClick={() => videoInputRef.current?.click()} className="submitForm__dropzone">
                 + Añadir vídeos
               </button>
@@ -402,7 +440,10 @@ export default function SubmitProjectPage() {
                     {videos.map(v => (
                       <div key={v.id} onClick={() => toggleVideoSelect(v.id)}
                         className={`submitForm__videoItem${v.selected ? ' submitForm__videoItem--selected' : ''}`}>
-                        <span>{v.selected ? '✓' : '🎬'}</span>
+                        {v.selected
+                          ? <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" width="16" height="16" style={{ opacity: 0.8 }} />
+                          : <IconVideo />
+                        }
                         <div>
                           <p className="submitForm__videoName">{v.file.name}</p>
                           <p className="submitForm__videoSize">{formatBytes(v.file.size)}</p>

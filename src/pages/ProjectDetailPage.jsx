@@ -28,6 +28,15 @@ function isVideo(item) {
   return ['mp4', 'avi', 'mov', 'quicktime'].includes(ext)
 }
 
+// ── Icono fallback para "sin media" ──────────────────────────────────────────
+const IconNoMedia = () => (
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <circle cx="8.5" cy="8.5" r="1.5"/>
+    <polyline points="21 15 16 10 5 21"/>
+  </svg>
+)
+
 function FeaturedVideo({ src }) {
   const videoRef = useRef(null)
   const [showControls, setShowControls] = useState(false)
@@ -77,6 +86,13 @@ function FeaturedVideo({ src }) {
     else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen()
   }
 
+  const IconPlay = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  )
+  const IconPause = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+  )
+
   return (
     <div
       className="featuredVideo"
@@ -89,7 +105,9 @@ function FeaturedVideo({ src }) {
           <div className="featuredVideo__progressBar" style={{ width: `${progress}%` }} />
         </div>
         <div className="featuredVideo__bar">
-          <button onClick={togglePlay} className="featuredVideo__playBtn">{paused ? '▶' : '⏸'}</button>
+          <button onClick={togglePlay} className="featuredVideo__playBtn">
+            {paused ? <IconPlay /> : <IconPause />}
+          </button>
           <span className="featuredVideo__time">{fmt(currentTime)} / {fmt(duration)}</span>
           <div className="featuredVideo__spacer" />
           <button onClick={fullscreen} className="featuredVideo__fsBtn">
@@ -147,7 +165,9 @@ function MediaGallery({ allImages, allVideos }) {
                 {t.type === 'video' ? (
                   <>
                     <video src={src} className="mediaGallery__thumbMedia" muted preload="metadata" />
-                    <div className="mediaGallery__thumbPlay"><span>▶</span></div>
+                    <div className="mediaGallery__thumbPlay">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </div>
                   </>
                 ) : (
                   <img src={src} alt={`Miniatura ${i + 1}`} className="mediaGallery__thumbMedia"
@@ -203,7 +223,6 @@ export default function ProjectDetailPage() {
       <Navbar />
       <main className="content detail__wrap">
 
-        {/* Breadcrumb */}
         <div className="detail__breadcrumb">
           <Link to="/">Proyectos</Link>
           <span className="detail__sep">›</span>
@@ -218,22 +237,19 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="detail__noMedia">
-              <span className="detail__noMediaIcon"></span>
+              <span className="detail__noMediaIcon"><IconNoMedia /></span>
             </div>
           )}
 
           <div className="detail__body">
 
-            {/* Asignatura + año */}
             <div className="detail__tags">
               {project.subject && <span className="detail__subjectBadge">{project.subject.name}</span>}
               {project.year && <span className="detail__yearBadge">{project.year}</span>}
             </div>
 
-            {/* Título */}
             <h1 className="detail__title">{project.title}</h1>
 
-            {/* Autores */}
             {((project.users?.length > 0) || (project.collaborators_text?.length > 0)) && (
               <p className="detail__authors">
                 Por{' '}
@@ -249,10 +265,8 @@ export default function ProjectDetailPage() {
               </p>
             )}
 
-            {/* Tagline */}
             <p className="detail__description">{project.description}</p>
 
-            {/* Descripción completa */}
             {project.full_description && (
               <div className="detail__section">
                 <h2 className="detail__sectionTitle">Descripción</h2>
@@ -260,18 +274,16 @@ export default function ProjectDetailPage() {
               </div>
             )}
 
-            {/* Demo */}
             {project.game_url && (
               <div className="detail__section">
                 <h2 className="detail__sectionTitle">Demo / Juego</h2>
                 <a href={project.game_url} target="_blank" rel="noopener noreferrer" className="detail__demoBtn">
-                   Jugar / Ver demo
+                  Jugar / Ver demo
                   <span className="detail__demoUrl">{project.game_url}</span>
                 </a>
               </div>
             )}
 
-            {/* Tags */}
             {project.tags?.length > 0 && (
               <div className="detail__section">
                 <p className="detail__tagsLabel">Etiquetas</p>
@@ -283,7 +295,6 @@ export default function ProjectDetailPage() {
               </div>
             )}
 
-            {/* Footer */}
             <div className="detail__footer">
               <span>Publicado el {new Date(project.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
               <Link to="/" className="detail__footerLink">← Volver</Link>

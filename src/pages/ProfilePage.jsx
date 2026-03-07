@@ -17,11 +17,49 @@ function isEmail(str) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str.trim())
 }
 
+// ── Iconos SVG inline ─────────────────────────────────────────────────────────
+const IconEdit = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+)
+const IconTrash = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+    <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+  </svg>
+)
+const IconCamera = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </svg>
+)
+const IconImage = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <circle cx="8.5" cy="8.5" r="1.5"/>
+    <polyline points="21 15 16 10 5 21"/>
+  </svg>
+)
+const IconWarning = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+)
+
+// ── Colaborador chip ──────────────────────────────────────────────────────────
 function CollaboratorChip({ collab, onRemove }) {
   const cls = collab.type === 'user' ? 'collab__chip collab__chip--user' : 'collab__chip collab__chip--text'
   return (
     <span className={cls}>
-      {collab.type === 'user' && '👤 '}
+      {collab.type === 'user' && (
+        <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt=""
+          style={{ width: 12, height: 12, objectFit: 'contain', opacity: 0.65, flexShrink: 0 }} />
+      )}
       {collab.name || collab.value}
       {onRemove && (
         <button type="button" onClick={onRemove} className="collab__chipBtn">✕</button>
@@ -30,6 +68,7 @@ function CollaboratorChip({ collab, onRemove }) {
   )
 }
 
+// ── Campo colaboradores ───────────────────────────────────────────────────────
 function CollaboratorsField({ collaborators, onChange }) {
   const [input, setInput] = useState('')
   const [searching, setSearching] = useState(false)
@@ -106,24 +145,24 @@ function CollaboratorsField({ collaborators, onChange }) {
       )}
       <div className="collab__row">
         <div className="collab__inputWrap">
-          <input
-            type="text" value={input} onChange={handleInput} onKeyDown={handleKeyDown}
+          <input type="text" value={input} onChange={handleInput} onKeyDown={handleKeyDown}
             placeholder="correo@usal.es o Nombre Apellido..."
-            className="collab__input"
-          />
+            className="collab__input" />
           {searching && <span className="collab__searching">Buscando...</span>}
         </div>
-        <button
-          type="button" onClick={handleAddClick}
+        <button type="button" onClick={handleAddClick}
           disabled={!input.trim() || (isEmail(input.trim()) && hint?.type !== 'found')}
-          className="collab__addBtn"
-        >
+          className="collab__addBtn">
           Añadir
         </button>
       </div>
       {hint && (
         <p className={hint.type === 'found' ? 'collab__hint--found' : 'collab__hint--notfound'}>
-          {hint.type === 'found' ? '✓ ' : '✗ '}{hint.message}
+          {hint.type === 'found'
+            ? <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
+            : <span style={{ fontWeight: 700, marginRight: 4 }}>✗</span>
+          }
+          {hint.message}
           {hint.type === 'found' && (
             <button type="button" className="collab__hintBtn"
               onClick={() => addCollaborator({ type: 'user', value: input.trim(), user_id: hint.user.id, name: hint.user.name || hint.user.email })}>
@@ -136,6 +175,7 @@ function CollaboratorsField({ collaborators, onChange }) {
   )
 }
 
+// ── Página principal ──────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user, login } = useAuth()
   const avatarInputRef = useRef(null)
@@ -197,8 +237,6 @@ export default function ProfilePage() {
     setBannerFile(file)
     if (bannerPreview) URL.revokeObjectURL(bannerPreview)
     setBannerPreview(URL.createObjectURL(file))
-    // Open edit form so user can save
-    setEditing(true)
     setSaveSuccess(false)
   }
 
@@ -211,7 +249,8 @@ export default function ProfilePage() {
       fd.append('name', form.name)
       fd.append('bio', form.bio)
       if (avatarFile) fd.append('profile_picture', avatarFile)
-      if (bannerFile) fd.append('banner_image', bannerFile)
+      // banner_image: pendiente de soporte en backend
+      // if (bannerFile) fd.append('banner_image', bannerFile)
       const res = await api.post('/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       login(res.data.user, localStorage.getItem('token'))
       setSaveSuccess(true); setEditing(false)
@@ -319,14 +358,6 @@ export default function ProfilePage() {
               <circle cx="300" cy="100" r="220" fill="white" />
               <circle cx="180" cy="340" r="140" fill="white" />
             </svg>
-            {/* Banner edit button — always visible */}
-            <button
-              type="button"
-              className="profileBanner__editBtn"
-              onClick={() => bannerInputRef.current?.click()}
-            >
-              🖼️ Cambiar portada
-            </button>
             <input
               ref={bannerInputRef}
               type="file"
@@ -345,9 +376,10 @@ export default function ProfilePage() {
             <button
               type="button"
               className="profileAvatar__cameraBtn"
+              title="Cambiar foto de perfil"
               onClick={() => { setEditing(true); setSaveSuccess(false); setTimeout(() => avatarInputRef.current?.click(), 50) }}
             >
-              📷
+              <IconCamera size={13} />
             </button>
             <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png" onChange={handleAvatarChange} style={{ display: 'none' }} />
           </div>
@@ -361,14 +393,18 @@ export default function ProfilePage() {
 
           {!editing ? (
             <button className="profileInfo__editBtn" onClick={() => { setEditing(true); setSaveSuccess(false) }}>
-              ✏️ Editar perfil
+              <IconEdit size={13} /> Editar perfil
             </button>
           ) : (
             <div className="profileInfo__editSpacer" />
           )}
 
           {saveSuccess && (
-            <div className="profileInfo__successMsg">Perfil actualizado correctamente.</div>
+            <div className="profileInfo__successMsg">
+              <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt=""
+                style={{ width: 14, height: 14, display: 'inline', marginRight: 6, verticalAlign: 'middle', opacity: 0.8 }} />
+              Perfil actualizado correctamente.
+            </div>
           )}
 
           {editing && (
@@ -376,15 +412,57 @@ export default function ProfilePage() {
               <h3 className="profileEditForm__title">Editar perfil</h3>
               {saveError && <div className="profileEditForm__error">{saveError}</div>}
               <form onSubmit={handleSaveProfile} className="profileEditForm__fields">
-                {avatarFile && <p className="profileEditForm__avatarHint">✓ Nueva foto de perfil: {avatarFile.name}</p>}
-                {bannerFile && <p className="profileEditForm__avatarHint">✓ Nueva portada: {bannerFile.name}</p>}
+
+                {avatarFile && (
+                  <p className="profileEditForm__avatarHint">
+                    <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt=""
+                      style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle', opacity: 0.8 }} />
+                    Nueva foto de perfil: {avatarFile.name}
+                  </p>
+                )}
+
+                {/* Cambiar portada */}
+                <div className="profileEditForm__bannerRow">
+                  <div className="profileEditForm__bannerPreview">
+                    {bannerPreview
+                      ? <img src={bannerPreview} alt="Vista previa portada" />
+                      : <span className="profileEditForm__bannerEmpty">Sin portada</span>
+                    }
+                  </div>
+                  <div className="profileEditForm__bannerActions">
+                    <button type="button" className="profileEditForm__bannerBtn"
+                      onClick={() => bannerInputRef.current?.click()}>
+                      <IconImage size={12} />
+                      {bannerFile ? 'Cambiar portada' : 'Añadir portada'}
+                    </button>
+                    {bannerFile && (
+                      <>
+                        <span className="profileEditForm__bannerName">{bannerFile.name}</span>
+                        <button type="button" className="profileEditForm__bannerRemove"
+                          onClick={() => {
+                            setBannerFile(null)
+                            if (bannerPreview) { URL.revokeObjectURL(bannerPreview); setBannerPreview(null) }
+                          }}>
+                          Quitar
+                        </button>
+                      </>
+                    )}
+                    <span className="profileEditForm__bannerNote">JPG, PNG o WebP · máx. 8MB</span>
+                  </div>
+                </div>
+
                 <div>
                   <label className="authCard__label">Nombre</label>
-                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="authCard__input" placeholder="Tu nombre completo" />
+                  <input type="text" value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    className="authCard__input" placeholder="Tu nombre completo" />
                 </div>
                 <div>
                   <label className="authCard__label">Biografía</label>
-                  <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={3} maxLength={1000} className="modal__textarea" placeholder="Cuéntanos algo sobre ti..." />
+                  <textarea value={form.bio}
+                    onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
+                    rows={3} maxLength={1000} className="modal__textarea"
+                    placeholder="Cuéntanos algo sobre ti..." />
                 </div>
                 <div className="profileEditForm__actions">
                   <button type="submit" disabled={saveLoading} className="btn btn--primary btn--sm">
@@ -409,7 +487,7 @@ export default function ProfilePage() {
               <h2 className="profileCard__title">Mis Proyectos</h2>
             </div>
             {loadingProjects ? (
-              <p className="about__meta">Cargando proyectos...</p>
+              <p style={{ color: '#9ca3af', fontSize: 14, padding: '8px 0' }}>Cargando proyectos...</p>
             ) : projects.length === 0 ? (
               <div className="profileCard__empty">
                 <p className="profileCard__emptyText">No tienes proyectos publicados aún.</p>
@@ -424,8 +502,12 @@ export default function ProfilePage() {
                       <p className="profileCard__itemMeta">{project.subject?.name} · {project.year}</p>
                     </div>
                     <div className="profileCard__itemActions">
-                      <button onClick={() => openEdit(project)} className="profileCard__editBtn">✏️ Editar</button>
-                      <button onClick={() => setDeletingProject(project)} className="profileCard__deleteBtn">🗑️ Eliminar</button>
+                      <button onClick={() => openEdit(project)} className="profileCard__editBtn">
+                        <IconEdit size={11} /> Editar
+                      </button>
+                      <button onClick={() => setDeletingProject(project)} className="profileCard__deleteBtn">
+                        <IconTrash size={11} /> Eliminar
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -439,7 +521,7 @@ export default function ProfilePage() {
               <h2 className="profileCard__title">Mis Solicitudes</h2>
             </div>
             {loadingRequests ? (
-              <p className="about__meta">Cargando solicitudes...</p>
+              <p style={{ color: '#9ca3af', fontSize: 14, padding: '8px 0' }}>Cargando solicitudes...</p>
             ) : requests.length === 0 ? (
               <p className="profileCard__empty">No has enviado ninguna solicitud aún.</p>
             ) : (
@@ -515,13 +597,16 @@ export default function ProfilePage() {
                 <input type="text" value={editForm.tags} onChange={e => setEditForm(f => ({ ...f, tags: e.target.value }))} className="authCard__input" />
               </div>
               <CollaboratorsField collaborators={editCollaborators} onChange={setEditCollaborators} />
-              <p className="modal__warn">
-                ⚠️ La lista de colaboradores que envíes <strong>reemplazará</strong> la actual.
+              <p className="modal__warn" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <IconWarning />
+                La lista de colaboradores que envíes <strong>reemplazará</strong> la actual.
               </p>
               <div className="modal__authBox">
                 <label className="modal__authLabel">
                   <input type="checkbox" checked={editForm.authorization} onChange={e => setEditForm(f => ({ ...f, authorization: e.target.checked }))} />
-                  <span className="modal__authText">Confirmo que tengo autorización para editar este proyecto. <span style={{color:'#dc2626'}}>*</span></span>
+                  <span className="modal__authText">
+                    Confirmo que tengo autorización para editar este proyecto. <span style={{ color: '#dc2626' }}>*</span>
+                  </span>
                 </label>
               </div>
               <div className="modal__actions">
@@ -539,7 +624,9 @@ export default function ProfilePage() {
       {deletingProject && (
         <div className="modal__overlay">
           <div className="modal__box modal__box--sm">
-            <div className="modal__icon">🗑️</div>
+            <div className="modal__icon">
+              <IconTrash size={40} />
+            </div>
             <h3 className="modal__deleteTitle">¿Solicitar eliminación?</h3>
             <p className="modal__deleteDesc">Vas a solicitar la eliminación de:</p>
             <p className="modal__deleteTarget">"{deletingProject.title}"</p>
