@@ -868,18 +868,30 @@ body {
 .profileBanner {
   width: 100%;
   height: clamp(140px, 20vw, 200px);
-  background: linear-gradient(135deg, #385e9d 0%, #6b7280 50%, #c0392b 100%);
+  background:
+    radial-gradient(ellipse 70% 120% at 28% 60%, #c0392b 0%, transparent 65%),
+    radial-gradient(ellipse 55% 100% at 10% 30%, #7b0d0d 0%, transparent 60%),
+    radial-gradient(ellipse 80% 80% at 75% 50%, #e05a1a 0%, transparent 55%),
+    radial-gradient(ellipse 60% 90% at 50% 100%, #8b1a1a 0%, transparent 50%),
+    #a01010;
   position: relative;
   overflow: hidden;
 }
 
-.profileBanner__svg {
+/* Capa de ruido/grain encima del gradiente */
+.profileBanner::after {
+  content: '';
   position: absolute;
-  right: -40px;
-  top: -40px;
-  opacity: 0.06;
-  width: 420px;
-  height: 420px;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.profileBanner__svg {
+  display: none;
 }
 .profileBanner__wrap {
   position: relative;
@@ -930,9 +942,11 @@ body {
   padding-top: clamp(56px, 8vw, 76px);
   text-align: center;
   max-width: 1180px;
+  width: 100%;
   margin: 0 auto;
   padding-left: 24px;
   padding-right: 24px;
+  box-sizing: border-box;
 }
 .profileInfo__name {
   font-size: clamp(20px, 3.5vw, 30px);
@@ -981,7 +995,7 @@ body {
   margin: 0 auto 16px;
 }
 .profileEditForm {
-  max-width: 720px;
+  max-width: 1180px;
   width: 100%;
   margin: 0 auto 32px;
   background: #fff;
@@ -989,6 +1003,7 @@ body {
   border-radius: 16px;
   padding: 32px 40px;
   text-align: left;
+  box-sizing: border-box;
 }
 @media (max-width: 640px) {
   .profileEditForm {
