@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
-import Footer from '../components/layout/Footer'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
@@ -17,54 +16,31 @@ function isEmail(str) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str.trim())
 }
 
-const IconEdit = ({ size = 13 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-  </svg>
-)
-const IconTrash = ({ size = 13 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"/>
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-    <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-  </svg>
-)
-const IconCamera = ({ size = 13 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-    <circle cx="12" cy="13" r="4"/>
-  </svg>
-)
-const IconWarning = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-  </svg>
-)
-
-
+// ── Chip de colaborador ───────────────────────────────────────────────────────
 function CollaboratorChip({ collab, onRemove }) {
-  const cls = collab.type === 'user' ? 'collab__chip collab__chip--user' : 'collab__chip collab__chip--text'
+  const base = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium'
+  if (collab.type === 'user') {
+    return (
+      <span className={`${base} bg-blue-100 text-blue-800`}>
+        👤 {collab.name || collab.value}
+        {onRemove && <button type="button" onClick={onRemove} className="hover:text-blue-600 ml-0.5">✕</button>}
+      </span>
+    )
+  }
   return (
-    <span className={cls}>
-      {collab.type === 'user' && (
-        <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt=""
-          style={{ width: 12, height: 12, objectFit: 'contain', opacity: 0.65, flexShrink: 0 }} />
-      )}
-      {collab.name || collab.value}
-      {onRemove && (
-        <button type="button" onClick={onRemove} className="collab__chipBtn">✕</button>
-      )}
+    <span className={`${base} bg-gray-100 text-gray-700`}>
+      {collab.value}
+      {onRemove && <button type="button" onClick={onRemove} className="hover:text-gray-500 ml-0.5">✕</button>}
     </span>
   )
 }
 
+// ── Campo de colaboradores ────────────────────────────────────────────────────
 function CollaboratorsField({ collaborators, onChange }) {
-  const [input, setInput] = useState('')
+  const [input, setInput]         = useState('')
   const [searching, setSearching] = useState(false)
-  const [hint, setHint] = useState(null)
-  const debounceRef = useRef(null)
+  const [hint, setHint]           = useState(null)
+  const debounceRef               = useRef(null)
 
   const addCollaborator = (collab) => {
     if (collaborators.some(c => c.value === collab.value)) return
@@ -85,78 +61,52 @@ function CollaboratorsField({ collaborators, onChange }) {
           if (res.data?.id) {
             setHint({ type: 'found', message: `Cuenta encontrada: ${res.data.name || res.data.email}`, user: res.data })
           } else {
-            setHint({ type: 'notfound', message: 'No hay ninguna cuenta registrada con ese correo.' })
+            setHint({ type: 'notfound', message: 'No hay ninguna cuenta registrada con ese correo, revise que esté bien escrito.' })
           }
         } catch {
-          setHint({ type: 'notfound', message: 'No hay ninguna cuenta registrada con ese correo.' })
+          setHint({ type: 'notfound', message: 'No hay ninguna cuenta registrada con ese correo, revise que esté bien escrito.' })
         } finally { setSearching(false) }
-      }, 600)
-    } else {
-      setSearching(false)
+      }, 500)
     }
   }
 
   const handleKeyDown = (e) => {
-    if (e.key !== 'Enter' && e.key !== ',') return
-    e.preventDefault()
-    const val = input.trim()
-    if (!val) return
-    if (isEmail(val)) {
-      if (hint?.type === 'found' && hint.user)
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const val = input.trim()
+      if (!val) return
+      if (hint?.type === 'found') {
         addCollaborator({ type: 'user', value: val, user_id: hint.user.id, name: hint.user.name || hint.user.email })
-    } else {
-      addCollaborator({ type: 'text', value: val })
-    }
-  }
-
-  const handleAddClick = () => {
-    const val = input.trim()
-    if (!val) return
-    if (isEmail(val)) {
-      if (hint?.type === 'found' && hint.user)
-        addCollaborator({ type: 'user', value: val, user_id: hint.user.id, name: hint.user.name || hint.user.email })
-    } else {
-      addCollaborator({ type: 'text', value: val })
+      } else if (!isEmail(val)) {
+        addCollaborator({ type: 'text', value: val })
+      }
     }
   }
 
   return (
-    <div className="collab__wrap">
-      <label className="collab__label">Colaboradores</label>
-      <p className="collab__hint">
-        Correo para buscar usuarios registrados, o nombre/apellido como texto plano. Enter o coma para añadir.
-      </p>
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Colaboradores</label>
       {collaborators.length > 0 && (
-        <div className="collab__chips">
+        <div className="flex flex-wrap gap-1.5 mb-2">
           {collaborators.map((c, i) => (
-            <CollaboratorChip key={i} collab={c}
-              onRemove={() => onChange(collaborators.filter((_, idx) => idx !== i))} />
+            <CollaboratorChip key={i} collab={c} onRemove={() => onChange(collaborators.filter((_, j) => j !== i))} />
           ))}
         </div>
       )}
-      <div className="collab__row">
-        <div className="collab__inputWrap">
-          <input type="text" value={input} onChange={handleInput} onKeyDown={handleKeyDown}
-            placeholder="correo@usal.es o Nombre Apellido..."
-            className="collab__input" />
-          {searching && <span className="collab__searching">Buscando...</span>}
-        </div>
-        <button type="button" onClick={handleAddClick}
-          disabled={!input.trim() || (isEmail(input.trim()) && hint?.type !== 'found')}
-          className="collab__addBtn">
-          Añadir
-        </button>
-      </div>
+      <input
+        type="text" value={input}
+        onChange={handleInput} onKeyDown={handleKeyDown}
+        placeholder="Nombre o correo electrónico + Enter"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      {searching && <p className="text-xs text-gray-400 mt-1">Buscando...</p>}
       {hint && (
-        <p className={hint.type === 'found' ? 'collab__hint--found' : 'collab__hint--notfound'}>
-          {hint.type === 'found'
-            ? <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt="" style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-            : <span style={{ fontWeight: 700, marginRight: 4 }}>✗</span>
-          }
-          {hint.message}
+        <p className={`text-xs mt-1 ${hint.type === 'found' ? 'text-green-600' : hint.type === 'notfound' ? 'text-red-500' : 'text-gray-500'}`}>
+          {hint.type === 'found' ? '✓ ' : hint.type === 'notfound' ? '✗ ' : ''}{hint.message}
           {hint.type === 'found' && (
-            <button type="button" className="collab__hintBtn"
-              onClick={() => addCollaborator({ type: 'user', value: input.trim(), user_id: hint.user.id, name: hint.user.name || hint.user.email })}>
+            <button type="button"
+              onClick={() => addCollaborator({ type: 'user', value: input.trim(), user_id: hint.user.id, name: hint.user.name || hint.user.email })}
+              className="ml-2 underline hover:no-underline">
               Añadir
             </button>
           )}
@@ -166,33 +116,43 @@ function CollaboratorsField({ collaborators, onChange }) {
   )
 }
 
-
+// ── Página principal ──────────────────────────────────────────────────────────
 export default function ProfilePage() {
   const { user, login } = useAuth()
-  const avatarInputRef = useRef(null)
+  const avatarInputRef  = useRef(null)
+  const bannerInputRef  = useRef(null)   // ← nuevo
 
-  const [projects, setProjects] = useState([])
-  const [requests, setRequests] = useState([])
+  const [projects, setProjects]               = useState([])
+  const [requests, setRequests]               = useState([])
   const [loadingProjects, setLoadingProjects] = useState(true)
   const [loadingRequests, setLoadingRequests] = useState(true)
 
-  const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState({ name: user?.name || '', bio: user?.bio || '' })
-  const [avatarFile, setAvatarFile] = useState(null)
-  const [avatarPreview, setAvatarPreview] = useState(null)
-  const [saveLoading, setSaveLoading] = useState(false)
-  const [saveError, setSaveError] = useState('')
-  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [editing, setEditing]           = useState(false)
+  const [form, setForm]                 = useState({ name: user?.name || '', bio: user?.bio || '' })
 
-  const [editingProject, setEditingProject] = useState(null)
-  const [editForm, setEditForm] = useState({})
+  // Foto de perfil
+  const [avatarFile, setAvatarFile]         = useState(null)
+  const [avatarPreview, setAvatarPreview]   = useState(null)
+
+  // Banner
+  const [bannerFile, setBannerFile]         = useState(null)   // ← nuevo
+  const [bannerPreview, setBannerPreview]   = useState(null)   // ← nuevo
+
+  const [saveLoading, setSaveLoading]   = useState(false)
+  const [saveError, setSaveError]       = useState('')
+  const [saveSuccess, setSaveSuccess]   = useState(false)
+
+  // Modal editar proyecto
+  const [editingProject, setEditingProject]   = useState(null)
+  const [editForm, setEditForm]               = useState({})
   const [editCollaborators, setEditCollaborators] = useState([])
-  const [editLoading, setEditLoading] = useState(false)
-  const [editError, setEditError] = useState('')
-  const [subjects, setSubjects] = useState([])
+  const [editLoading, setEditLoading]         = useState(false)
+  const [editError, setEditError]             = useState('')
+  const [subjects, setSubjects]               = useState([])
 
+  // Modal confirmar eliminar
   const [deletingProject, setDeletingProject] = useState(null)
-  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading]     = useState(false)
 
   useEffect(() => {
     api.get('/my-projects').then(r => setProjects(r.data)).catch(() => {}).finally(() => setLoadingProjects(false))
@@ -202,12 +162,14 @@ export default function ProfilePage() {
 
   useEffect(() => () => {
     if (avatarPreview) URL.revokeObjectURL(avatarPreview)
-  }, [avatarPreview])
+    if (bannerPreview) URL.revokeObjectURL(bannerPreview)
+  }, [avatarPreview, bannerPreview])
 
+  // ── Avatar ──────────────────────────────────────────────────────────────────
   const handleAvatarChange = (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) { setSaveError('Solo JPG o PNG.'); return }
+    if (!['image/jpeg','image/png','image/jpg'].includes(file.type)) { setSaveError('Solo JPG o PNG.'); return }
     if (file.size > 5 * 1024 * 1024) { setSaveError('Máximo 5MB.'); return }
     setSaveError('')
     setAvatarFile(file)
@@ -215,19 +177,40 @@ export default function ProfilePage() {
     setAvatarPreview(URL.createObjectURL(file))
   }
 
+  // ── Banner ──────────────────────────────────────────────────────────────────
+  const handleBannerChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (!['image/jpeg','image/png','image/jpg'].includes(file.type)) { setSaveError('Solo JPG o PNG.'); return }
+    if (file.size > 5 * 1024 * 1024) { setSaveError('Máximo 5MB.'); return }
+    setSaveError('')
+    setBannerFile(file)
+    if (bannerPreview) URL.revokeObjectURL(bannerPreview)
+    setBannerPreview(URL.createObjectURL(file))
+  }
+
+  // ── Guardar perfil ──────────────────────────────────────────────────────────
   const handleSaveProfile = async (e) => {
     e.preventDefault()
     setSaveLoading(true); setSaveError(''); setSaveSuccess(false)
     try {
-      const fd = new FormData()
-      fd.append('_method', 'PUT')
-      fd.append('name', form.name)
-      fd.append('bio', form.bio)
-      if (avatarFile) fd.append('profile_picture', avatarFile)
-      const res = await api.post('/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      let res
+      // Si hay algún archivo usamos multipart, si no JSON
+      if (avatarFile || bannerFile) {
+        const fd = new FormData()
+        fd.append('_method', 'PUT')
+        fd.append('name', form.name)
+        fd.append('bio', form.bio)
+        if (avatarFile) fd.append('profile_picture', avatarFile)
+        if (bannerFile) fd.append('profile_banner',  bannerFile)
+        res = await api.post('/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      } else {
+        res = await api.put('/profile', form)
+      }
       login(res.data.user, localStorage.getItem('token'))
       setSaveSuccess(true); setEditing(false)
       setAvatarFile(null); setAvatarPreview(null)
+      setBannerFile(null); setBannerPreview(null)
     } catch (err) {
       setSaveError(err.response?.data?.message || 'Error al guardar el perfil.')
     } finally { setSaveLoading(false) }
@@ -237,20 +220,23 @@ export default function ProfilePage() {
     setEditing(false); setSaveError('')
     setAvatarFile(null)
     if (avatarPreview) { URL.revokeObjectURL(avatarPreview); setAvatarPreview(null) }
+    setBannerFile(null)
+    if (bannerPreview) { URL.revokeObjectURL(bannerPreview); setBannerPreview(null) }
     setForm({ name: user?.name || '', bio: user?.bio || '' })
   }
 
+  // ── Abrir modal de edición de proyecto ──────────────────────────────────────
   const openEdit = (project) => {
     setEditingProject(project)
     setEditForm({
-      title: project.title || '',
-      description: project.description || '',
+      title:            project.title || '',
+      description:      project.description || '',
       full_description: project.full_description || '',
-      subject_id: project.subject?.id || '',
-      year: project.year || '',
-      tags: project.tags?.join(', ') || '',
-      game_url: project.game_url || '',
-      authorization: false,
+      subject_id:       project.subject?.id || '',
+      year:             project.year || '',
+      tags:             project.tags?.join(', ') || '',
+      game_url:         project.game_url || '',
+      authorization:    false,
     })
     const userCollabs = (project.users || [])
       .filter(u => u.id !== user?.id)
@@ -261,19 +247,20 @@ export default function ProfilePage() {
     setEditError('')
   }
 
+  // ── Enviar solicitud de edición ─────────────────────────────────────────────
   const handleEditSubmit = async (e) => {
     e.preventDefault()
     if (!editForm.authorization) { setEditError('Debes marcar la autorización.'); return }
     setEditLoading(true); setEditError('')
     try {
       const fd = new FormData()
-      fd.append('title', editForm.title)
-      fd.append('description', editForm.description)
+      fd.append('title',            editForm.title)
+      fd.append('description',      editForm.description)
       if (editForm.full_description) fd.append('full_description', editForm.full_description)
-      fd.append('subject_id', editForm.subject_id)
-      if (editForm.year) fd.append('year', editForm.year)
+      fd.append('subject_id',       editForm.subject_id)
+      if (editForm.year)     fd.append('year',     editForm.year)
       if (editForm.game_url) fd.append('game_url', editForm.game_url)
-      fd.append('authorization', '1')
+      fd.append('authorization',    '1')
       editForm.tags.split(',').map(t => t.trim()).filter(Boolean).forEach(t => fd.append('tags[]', t))
       fd.append('collaborators_json', JSON.stringify(editCollaborators))
       await api.post(`/requests/update-project/${editingProject.id}`, fd, {
@@ -288,6 +275,7 @@ export default function ProfilePage() {
     } finally { setEditLoading(false) }
   }
 
+  // ── Eliminar proyecto ───────────────────────────────────────────────────────
   const handleDeleteConfirm = async () => {
     setDeleteLoading(true)
     try {
@@ -301,270 +289,289 @@ export default function ProfilePage() {
   }
 
   const statusLabel = (status) => ({
-    pending:  { text: 'Pendiente', cls: 'statusBadge statusBadge--pending' },
-    approved: { text: 'Aprobada',  cls: 'statusBadge statusBadge--approved' },
-    rejected: { text: 'Rechazada', cls: 'statusBadge statusBadge--rejected' },
-  }[status] || { text: status, cls: 'statusBadge' })
+    pending:  { text: 'Pendiente', color: 'bg-yellow-100 text-yellow-700' },
+    approved: { text: 'Aprobada',  color: 'bg-green-100 text-green-700'  },
+    rejected: { text: 'Rechazada', color: 'bg-red-100 text-red-700'      },
+  }[status] || { text: status, color: 'bg-gray-100 text-gray-700' })
 
   const typeLabel = (type) => ({
     create: 'Crear proyecto', update: 'Editar proyecto', delete: 'Eliminar proyecto'
   }[type] || type)
 
-  const currentAvatar = avatarPreview || avatarUrl(user?.profile_picture)
+  const currentAvatar  = avatarPreview  || avatarUrl(user?.profile_picture)
+  const currentBanner  = bannerPreview  || avatarUrl(user?.profile_banner)   // ← nuevo
+  const initials       = (user?.name || user?.email || '?').charAt(0).toUpperCase()
 
   return (
-    <div className="page">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="main">
+      <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
 
-        {/* Banner + Avatar */}
-        <div className="profileBanner__wrap">
-          <div className="profileBanner">
-            <svg className="profileBanner__svg" viewBox="0 0 420 420">
-              <circle cx="300" cy="100" r="220" fill="white" />
-              <circle cx="180" cy="340" r="140" fill="white" />
-            </svg>
+        {/* ── Mi Perfil ── */}
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+
+          {/* ── Banner ── */}
+          <div className="relative h-36 bg-gradient-to-r from-slate-700 to-blue-800 overflow-hidden">
+            {currentBanner
+              ? <img src={currentBanner} alt="Banner" className="w-full h-full object-cover" />
+              : <div className="w-full h-full" />}
+
+            {/* Botón editar banner (siempre visible, no solo en modo edición) */}
+            {editing && (
+              <button
+                type="button"
+                onClick={() => bannerInputRef.current?.click()}
+                className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"
+                title="Cambiar banner"
+              >
+                🖼 Cambiar banner
+              </button>
+            )}
+            <input ref={bannerInputRef} type="file" accept="image/jpeg,image/png" onChange={handleBannerChange} className="hidden" />
           </div>
-          <div className="profileAvatar__anchor">
-            <div className="profileAvatar">
-              {currentAvatar
-                ? <img src={currentAvatar} alt="Avatar" />
-                : <img src={`${import.meta.env.BASE_URL}icons/user.png`} alt="Avatar" className="profileAvatar__placeholder" />
-              }
+
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-gray-900">Mi Perfil</h2>
+              {!editing && (
+                <button onClick={() => { setEditing(true); setSaveSuccess(false) }}
+                  className="text-sm text-blue-600 hover:text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg transition">
+                  Editar
+                </button>
+              )}
             </div>
-            <button
-              type="button"
-              className="profileAvatar__cameraBtn"
-              title="Cambiar foto de perfil"
-              onClick={() => { setEditing(true); setSaveSuccess(false); setTimeout(() => avatarInputRef.current?.click(), 50) }}
-            >
-              <IconCamera size={13} />
-            </button>
-            <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png" onChange={handleAvatarChange} style={{ display: 'none' }} />
+
+            {saveSuccess && <div className="bg-green-50 border border-green-200 text-green-700 text-sm p-3 rounded-lg mb-4">Perfil actualizado correctamente.</div>}
+
+            {editing ? (
+              <form onSubmit={handleSaveProfile} className="space-y-5">
+                {saveError && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{saveError}</div>}
+
+                {/* Banner info */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-600 flex items-center gap-2">
+                  🖼 <span>Haz clic en <strong>"Cambiar banner"</strong> en la imagen de arriba para actualizar el banner de perfil.</span>
+                  {bannerFile && <span className="text-green-600 ml-auto">✓ {bannerFile.name}</span>}
+                </div>
+
+                {/* Avatar */}
+                <div className="flex items-center gap-5">
+                  <div className="relative shrink-0">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-blue-100 border-2 border-blue-200">
+                      {currentAvatar
+                        ? <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                        : <div className="w-full h-full flex items-center justify-center text-blue-600 text-2xl font-bold">{initials}</div>}
+                    </div>
+                    <button type="button" onClick={() => avatarInputRef.current?.click()}
+                      className="absolute -bottom-1 -right-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm shadow transition"
+                      title="Cambiar foto">📷</button>
+                    <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png" onChange={handleAvatarChange} className="hidden" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Foto de perfil</p>
+                    <p className="text-xs text-gray-400 mt-0.5">JPG o PNG · máx. 5MB</p>
+                    {avatarFile && <p className="text-xs text-green-600 mt-1">✓ {avatarFile.name}</p>}
+                    <button type="button" onClick={() => avatarInputRef.current?.click()}
+                      className="mt-2 text-xs text-blue-600 hover:text-blue-700 underline">
+                      {currentAvatar ? 'Cambiar foto' : 'Subir foto'}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tu nombre completo" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Biografía</label>
+                  <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={3} maxLength={1000}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Cuéntanos algo sobre ti..." />
+                </div>
+                <div className="flex gap-2">
+                  <button type="submit" disabled={saveLoading}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                    {saveLoading ? 'Guardando...' : 'Guardar cambios'}
+                  </button>
+                  <button type="button" onClick={cancelEdit}
+                    className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="flex items-center gap-5">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-blue-100 border-2 border-gray-200 shrink-0">
+                  {currentAvatar
+                    ? <img src={currentAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-blue-600 text-2xl font-bold">{initials}</div>}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 text-lg">{user?.name || '—'}</p>
+                  <p className="text-sm text-gray-500">{user?.email}</p>
+                  {user?.bio && <p className="text-sm text-gray-600 mt-2">{user.bio}</p>}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Info del usuario */}
-        <div className="profileInfo">
-          <h1 className="profileInfo__name">{user?.name || '—'}</h1>
-          <p className="profileInfo__email">{user?.email}</p>
-          {user?.bio && <p className="profileInfo__bio">{user.bio}</p>}
-
-          {!editing ? (
-            <button className="profileInfo__editBtn" onClick={() => { setEditing(true); setSaveSuccess(false) }}>
-              <IconEdit size={13} /> Editar perfil
-            </button>
+        {/* ── Mis proyectos ── */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Mis Proyectos</h2>
+          {loadingProjects ? (
+            <p className="text-sm text-gray-400">Cargando proyectos...</p>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <p className="text-4xl mb-2">📁</p>
+              <p className="text-sm">Aún no has subido ningún proyecto.</p>
+              <Link to="/submit" className="text-blue-600 hover:underline text-sm mt-1 inline-block">Subir un proyecto</Link>
+            </div>
           ) : (
-            <div className="profileInfo__editSpacer" />
-          )}
-
-          {saveSuccess && (
-            <div className="profileInfo__successMsg">
-              <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt=""
-                style={{ width: 14, height: 14, display: 'inline', marginRight: 6, verticalAlign: 'middle', opacity: 0.8 }} />
-              Perfil actualizado correctamente.
+            <div className="space-y-3">
+              {projects.map(project => (
+                <div key={project.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition">
+                  <div className="flex-1 min-w-0">
+                    <Link to={`/projects/${project.id}`} className="font-medium text-gray-900 hover:text-blue-600 transition text-sm block truncate">
+                      {project.title}
+                    </Link>
+                    <p className="text-xs text-gray-400 mt-0.5">{project.subject?.name} · {project.year}</p>
+                  </div>
+                  <div className="flex items-center gap-2 ml-3 shrink-0">
+                    <button onClick={() => openEdit(project)}
+                      className="text-xs text-blue-600 hover:text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg transition">
+                      Editar
+                    </button>
+                    <button onClick={() => setDeletingProject(project)}
+                      className="text-xs text-red-500 hover:text-red-600 border border-red-200 px-2.5 py-1 rounded-lg transition">
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
+        </div>
 
-          {editing && (
-            <div className="profileEditForm">
-              <h3 className="profileEditForm__title">Editar perfil</h3>
-              {saveError && <div className="profileEditForm__error">{saveError}</div>}
-              <form onSubmit={handleSaveProfile} className="profileEditForm__fields">
+        {/* ── Mis solicitudes ── */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Mis Solicitudes</h2>
+          {loadingRequests ? (
+            <p className="text-sm text-gray-400">Cargando solicitudes...</p>
+          ) : requests.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-6">No tienes solicitudes pendientes.</p>
+          ) : (
+            <div className="space-y-3">
+              {requests.map(req => {
+                const sl = statusLabel(req.status)
+                const tl = typeLabel(req.type)
+                return (
+                  <div key={req.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{tl}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{req.project?.title || '—'}</p>
+                    </div>
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${sl.color}`}>{sl.text}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
-                {avatarFile && (
-                  <p className="profileEditForm__avatarHint">
-                    <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt=""
-                      style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle', opacity: 0.8 }} />
-                    Nueva foto de perfil: {avatarFile.name}
-                  </p>
-                )}
-
+      {/* ── Modal editar proyecto ── */}
+      {editingProject && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-bold text-gray-900">Solicitar edición del proyecto</h3>
+                <button onClick={() => setEditingProject(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+              </div>
+              <form onSubmit={handleEditSubmit} className="space-y-4">
+                {editError && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{editError}</div>}
                 <div>
-                  <label className="authCard__label">Nombre</label>
-                  <input type="text" value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    className="authCard__input" placeholder="Tu nombre completo" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+                  <input required type="text" value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="authCard__label">Biografía</label>
-                  <textarea value={form.bio}
-                    onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-                    rows={3} maxLength={1000} className="modal__textarea"
-                    placeholder="Cuéntanos algo sobre ti..." />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Descripción corta *</label>
+                  <textarea required rows={2} value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                 </div>
-                <div className="profileEditForm__actions">
-                  <button type="submit" disabled={saveLoading} className="btn btn--primary btn--sm">
-                    {saveLoading ? 'Guardando...' : 'Guardar cambios'}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Descripción completa</label>
+                  <textarea rows={4} value={editForm.full_description} onChange={e => setEditForm(f => ({ ...f, full_description: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Asignatura *</label>
+                    <select required value={editForm.subject_id} onChange={e => setEditForm(f => ({ ...f, subject_id: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">Selecciona...</option>
+                      {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Año</label>
+                    <input type="number" min="2000" max="2100" value={editForm.year} onChange={e => setEditForm(f => ({ ...f, year: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tags (separados por coma)</label>
+                  <input type="text" value={editForm.tags} onChange={e => setEditForm(f => ({ ...f, tags: e.target.value }))}
+                    placeholder="unity, 2d, plataformas"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Enlace al juego / demo</label>
+                  <input type="url" value={editForm.game_url} onChange={e => setEditForm(f => ({ ...f, game_url: e.target.value }))}
+                    placeholder="https://..."
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <CollaboratorsField collaborators={editCollaborators} onChange={setEditCollaborators} />
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={editForm.authorization} onChange={e => setEditForm(f => ({ ...f, authorization: e.target.checked }))}
+                    className="mt-0.5 rounded" />
+                  <span className="text-xs text-gray-600">
+                    Confirmo que tengo autorización para publicar este proyecto y que la información es correcta.
+                  </span>
+                </label>
+                <div className="flex gap-2 pt-1">
+                  <button type="submit" disabled={editLoading}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                    {editLoading ? 'Enviando...' : 'Enviar solicitud'}
                   </button>
-                  <button type="button" onClick={cancelEdit} className="profileEditForm__cancelBtn">Cancelar</button>
+                  <button type="button" onClick={() => setEditingProject(null)}
+                    className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                    Cancelar
+                  </button>
                 </div>
               </form>
             </div>
-          )}
-        </div>
-
-        {/* Divisor */}
-        <div className="profileDivider"><hr /></div>
-
-        {/* Contenido */}
-        <div className="profileContent">
-
-          {/* Mis proyectos */}
-          <div className="profileCard">
-            <div className="profileCard__header">
-              <h2 className="profileCard__title">Mis Proyectos</h2>
-            </div>
-            {loadingProjects ? (
-              <p style={{ color: '#9ca3af', fontSize: 14, padding: '8px 0' }}>Cargando proyectos...</p>
-            ) : projects.length === 0 ? (
-              <p className="profileCard__empty">No has publicado ningún proyecto aún.</p>
-            ) : (
-              <div className="profileCard__list">
-                {projects.map(project => (
-                  <div key={project.id} className="profileCard__item">
-                    <div className="profileCard__itemInfo">
-                      <span className="profileCard__itemTitle">{project.title}</span>
-                      {project.subject && (
-                        <p className="profileCard__itemMeta">{project.subject.name}{project.year ? ` · ${project.year}` : ''}</p>
-                      )}
-                    </div>
-                    <div className="profileCard__itemActions">
-                      <button className="profileCard__editBtn" onClick={() => openEdit(project)}>
-                        <IconEdit size={11} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-                        Editar
-                      </button>
-                      <button className="profileCard__deleteBtn" onClick={() => setDeletingProject(project)}>
-                        <IconTrash size={11} style={{ display: 'inline', marginRight: 4, verticalAlign: 'middle' }} />
-                        Eliminar
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Mis solicitudes */}
-          <div className="profileCard">
-            <div className="profileCard__header">
-              <h2 className="profileCard__title">Mis Solicitudes</h2>
-            </div>
-            {loadingRequests ? (
-              <p style={{ color: '#9ca3af', fontSize: 14, padding: '8px 0' }}>Cargando solicitudes...</p>
-            ) : requests.length === 0 ? (
-              <p className="profileCard__empty">No has enviado ninguna solicitud aún.</p>
-            ) : (
-              <div className="profileCard__list">
-                {requests.map(req => {
-                  const { text, cls } = statusLabel(req.status)
-                  return (
-                    <div key={req.id} className="profileCard__reqItem">
-                      <div>
-                        <span className="profileCard__reqTitle">{req.data?.title || `Solicitud #${req.id}`}</span>
-                        <span className="profileCard__reqType">{typeLabel(req.type)}</span>
-                        <p className="profileCard__reqDate">
-                          {new Date(req.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        </p>
-                        {req.admin_message && <p className="profileCard__reqReason">Motivo: {req.admin_message}</p>}
-                      </div>
-                      <span className={cls}>{text}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-        </div>
-      </main>
-      <Footer />
-
-      {/* Modal editar proyecto */}
-      {editingProject && (
-        <div className="modal__overlay">
-          <div className="modal__box">
-            <div className="modal__header">
-              <h3 className="modal__title">Solicitar edición</h3>
-              <button onClick={() => setEditingProject(null)} className="modal__closeBtn">✕</button>
-            </div>
-            <p className="modal__subtitle">
-              Se enviará una solicitud de edición. Un administrador la revisará antes de aplicar los cambios.
-            </p>
-            {editError && <div className="modal__error">{editError}</div>}
-            <form onSubmit={handleEditSubmit} className="modal__form">
-              <div>
-                <label className="authCard__label">Título *</label>
-                <input type="text" value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} required className="authCard__input" />
-              </div>
-              <div>
-                <label className="authCard__label">Descripción breve *</label>
-                <textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} required rows={2} className="modal__textarea" />
-              </div>
-              <div>
-                <label className="authCard__label">Descripción completa</label>
-                <textarea value={editForm.full_description} onChange={e => setEditForm(f => ({ ...f, full_description: e.target.value }))} rows={3} className="modal__textarea" />
-              </div>
-              <div className="modal__grid2">
-                <div>
-                  <label className="authCard__label">Asignatura</label>
-                  <select value={editForm.subject_id} onChange={e => setEditForm(f => ({ ...f, subject_id: e.target.value }))} className="modal__select">
-                    <option value="">Selecciona...</option>
-                    {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="authCard__label">Año</label>
-                  <input type="number" value={editForm.year} onChange={e => setEditForm(f => ({ ...f, year: e.target.value }))} min={1900} max={2100} className="authCard__input" />
-                </div>
-              </div>
-              <div>
-                <label className="authCard__label">Enlace al juego / demo</label>
-                <input type="url" value={editForm.game_url} onChange={e => setEditForm(f => ({ ...f, game_url: e.target.value }))} placeholder="https://itch.io/tu-juego" className="authCard__input" />
-              </div>
-              <div>
-                <label className="authCard__label">Etiquetas (separadas por coma)</label>
-                <input type="text" value={editForm.tags} onChange={e => setEditForm(f => ({ ...f, tags: e.target.value }))} className="authCard__input" />
-              </div>
-              <CollaboratorsField collaborators={editCollaborators} onChange={setEditCollaborators} />
-              <p className="modal__warn" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <IconWarning />
-                La lista de colaboradores que envíes <strong>reemplazará</strong> la actual.
-              </p>
-              <div className="modal__authBox">
-                <label className="modal__authLabel">
-                  <input type="checkbox" checked={editForm.authorization} onChange={e => setEditForm(f => ({ ...f, authorization: e.target.checked }))} />
-                  <span className="modal__authText">
-                    Confirmo que tengo autorización para editar este proyecto. <span style={{ color: '#dc2626' }}>*</span>
-                  </span>
-                </label>
-              </div>
-              <div className="modal__actions">
-                <button type="submit" disabled={editLoading || !editForm.authorization} className="btn btn--primary modal__submitBtn">
-                  {editLoading ? 'Enviando...' : 'Enviar solicitud'}
-                </button>
-                <button type="button" onClick={() => setEditingProject(null)} className="modal__cancelBtn">Cancelar</button>
-              </div>
-            </form>
           </div>
         </div>
       )}
 
-      {/* Modal confirmar eliminación */}
+      {/* ── Modal confirmar eliminar ── */}
       {deletingProject && (
-        <div className="modal__overlay">
-          <div className="modal__box modal__box--sm">
-            <div className="modal__icon">
-              <IconTrash size={40} />
-            </div>
-            <h3 className="modal__deleteTitle">¿Solicitar eliminación?</h3>
-            <p className="modal__deleteDesc">Vas a solicitar la eliminación de:</p>
-            <p className="modal__deleteTarget">"{deletingProject.title}"</p>
-            <p className="modal__deleteNote">Un administrador revisará la solicitud antes de eliminar el proyecto.</p>
-            <div className="modal__deleteActions">
-              <button onClick={() => setDeletingProject(null)} className="modal__cancelBtnAlt">Cancelar</button>
-              <button onClick={handleDeleteConfirm} disabled={deleteLoading} className="modal__confirmBtn">
-                {deleteLoading ? 'Enviando...' : 'Sí, solicitar'}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">¿Eliminar proyecto?</h3>
+            <p className="text-sm text-gray-600 mb-5">
+              Se enviará una solicitud de eliminación de <strong>"{deletingProject.title}"</strong>. Un administrador la revisará.
+            </p>
+            <div className="flex gap-2">
+              <button onClick={handleDeleteConfirm} disabled={deleteLoading}
+                className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white py-2 rounded-lg text-sm font-medium transition">
+                {deleteLoading ? 'Enviando...' : 'Sí, eliminar'}
+              </button>
+              <button onClick={() => setDeletingProject(null)}
+                className="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 rounded-lg text-sm font-medium transition">
+                Cancelar
               </button>
             </div>
           </div>

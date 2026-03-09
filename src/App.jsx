@@ -1,15 +1,17 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
-import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import ProjectDetailPage from './pages/ProjectDetailPage'
-import ProfilePage from './pages/ProfilePage'
-import UserProfilePage from './pages/UserProfilePage'
-import SubmitProjectPage from './pages/SubmitProjectPage'
-import AdminPage from './pages/Admin/AdminPage'
-import AboutPage from './pages/AboutPage'
+import HomePage           from './pages/HomePage'
+import LoginPage          from './pages/LoginPage'
+import RegisterPage       from './pages/RegisterPage'
+import ProjectDetailPage  from './pages/ProjectDetailPage'
+import ProfilePage        from './pages/ProfilePage'
+import UserProfilePage    from './pages/UserProfilePage'
+import SubmitProjectPage  from './pages/SubmitProjectPage'
+import AdminPage          from './pages/Admin/AdminPage'
+import AboutPage          from './pages/AboutPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'   // ← nuevo
+import ResetPasswordPage  from './pages/ResetPasswordPage'    // ← nuevo
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
@@ -28,15 +30,17 @@ function AdminRoute({ children }) {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/projects/:id" element={<ProjectDetailPage />} />
+      <Route path="/"                  element={<HomePage />} />
+      <Route path="/login"             element={<LoginPage />} />
+      <Route path="/register"          element={<RegisterPage />} />
+      <Route path="/about"             element={<AboutPage />} />
+      <Route path="/forgot-password"   element={<ForgotPasswordPage />} />   {/* ← nuevo */}
+      <Route path="/reset-password"    element={<ResetPasswordPage />} />     {/* ← nuevo */}
+      <Route path="/projects/:id"      element={<ProjectDetailPage />} />
       <Route path="/users/:id/projects" element={<UserProfilePage />} />
-      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      <Route path="/submit" element={<ProtectedRoute><SubmitProjectPage /></ProtectedRoute>} />
-      <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+      <Route path="/profile"           element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/submit"            element={<ProtectedRoute><SubmitProjectPage /></ProtectedRoute>} />
+      <Route path="/admin"             element={<AdminRoute><AdminPage /></AdminRoute>} />
     </Routes>
   )
 }

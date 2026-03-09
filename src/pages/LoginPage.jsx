@@ -58,6 +58,11 @@ export default function LoginPage() {
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </form>
+          <p>
+            <Link to="/forgot-password" className="text-blue-600 hover:underline">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </p>
           <p className="authCard__footer">
             ¿No tienes cuenta?{' '}
             <Link to="/register" className="authCard__footerLink">Regístrate</Link>
