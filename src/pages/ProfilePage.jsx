@@ -36,13 +36,18 @@ const IconCamera = ({ size = 13 }) => (
     <circle cx="12" cy="13" r="4"/>
   </svg>
 )
+const IconImage = ({ size = 13 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+    <polyline points="21 15 16 10 5 21"/>
+  </svg>
+)
 const IconWarning = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
     <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
   </svg>
 )
-
 
 function CollaboratorChip({ collab, onRemove }) {
   const cls = collab.type === 'user' ? 'collab__chip collab__chip--user' : 'collab__chip collab__chip--text'
@@ -170,6 +175,7 @@ function CollaboratorsField({ collaborators, onChange }) {
 export default function ProfilePage() {
   const { user, login } = useAuth()
   const avatarInputRef = useRef(null)
+  const bannerInputRef = useRef(null)   // ← nuevo
 
   const [projects, setProjects] = useState([])
   const [requests, setRequests] = useState([])
@@ -178,8 +184,12 @@ export default function ProfilePage() {
 
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: user?.name || '', bio: user?.bio || '' })
+
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
+  const [bannerFile, setBannerFile] = useState(null)       // ← nuevo
+  const [bannerPreview, setBannerPreview] = useState(null) // ← nuevo
+
   const [saveLoading, setSaveLoading] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -202,7 +212,8 @@ export default function ProfilePage() {
 
   useEffect(() => () => {
     if (avatarPreview) URL.revokeObjectURL(avatarPreview)
-  }, [avatarPreview])
+    if (bannerPreview) URL.revokeObjectURL(bannerPreview)
+  }, [avatarPreview, bannerPreview])
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0]
@@ -215,6 +226,18 @@ export default function ProfilePage() {
     setAvatarPreview(URL.createObjectURL(file))
   }
 
+  // ← nuevo
+  const handleBannerChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) { setSaveError('Solo JPG o PNG.'); return }
+    if (file.size > 5 * 1024 * 1024) { setSaveError('Máximo 5MB.'); return }
+    setSaveError('')
+    setBannerFile(file)
+    if (bannerPreview) URL.revokeObjectURL(bannerPreview)
+    setBannerPreview(URL.createObjectURL(file))
+  }
+
   const handleSaveProfile = async (e) => {
     e.preventDefault()
     setSaveLoading(true); setSaveError(''); setSaveSuccess(false)
@@ -224,10 +247,12 @@ export default function ProfilePage() {
       fd.append('name', form.name)
       fd.append('bio', form.bio)
       if (avatarFile) fd.append('profile_picture', avatarFile)
+      if (bannerFile) fd.append('profile_banner', bannerFile)   // ← nuevo
       const res = await api.post('/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       login(res.data.user, localStorage.getItem('token'))
       setSaveSuccess(true); setEditing(false)
       setAvatarFile(null); setAvatarPreview(null)
+      setBannerFile(null); setBannerPreview(null)               // ← nuevo
     } catch (err) {
       setSaveError(err.response?.data?.message || 'Error al guardar el perfil.')
     } finally { setSaveLoading(false) }
@@ -237,6 +262,8 @@ export default function ProfilePage() {
     setEditing(false); setSaveError('')
     setAvatarFile(null)
     if (avatarPreview) { URL.revokeObjectURL(avatarPreview); setAvatarPreview(null) }
+    setBannerFile(null)                                          // ← nuevo
+    if (bannerPreview) { URL.revokeObjectURL(bannerPreview); setBannerPreview(null) }
     setForm({ name: user?.name || '', bio: user?.bio || '' })
   }
 
@@ -311,6 +338,7 @@ export default function ProfilePage() {
   }[type] || type)
 
   const currentAvatar = avatarPreview || avatarUrl(user?.profile_picture)
+  const currentBanner = bannerPreview || avatarUrl(user?.profile_banner)   // ← nuevo
 
   return (
     <div className="page">
@@ -319,12 +347,47 @@ export default function ProfilePage() {
 
         {/* Banner + Avatar */}
         <div className="profileBanner__wrap">
-          <div className="profileBanner">
-            <svg className="profileBanner__svg" viewBox="0 0 420 420">
-              <circle cx="300" cy="100" r="220" fill="white" />
-              <circle cx="180" cy="340" r="140" fill="white" />
-            </svg>
+          {/* ── Banner ── */}
+          <div className="profileBanner" style={currentBanner ? { background: 'none' } : {}}>
+            {currentBanner
+              ? <img src={currentBanner} alt="Banner de perfil"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              : (
+                <svg className="profileBanner__svg" viewBox="0 0 420 420">
+                  <circle cx="300" cy="100" r="220" fill="white" />
+                  <circle cx="180" cy="340" r="140" fill="white" />
+                </svg>
+              )
+            }
+
+            {/* Botón cambiar banner — solo en modo edición */}
+            {editing && (
+              <button
+                type="button"
+                onClick={() => bannerInputRef.current?.click()}
+                title="Cambiar banner"
+                style={{
+                  position: 'absolute', bottom: 8, right: 8,
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  background: 'rgba(0,0,0,0.55)', color: 'white',
+                  border: 'none', borderRadius: 8,
+                  padding: '5px 11px', fontSize: 12,
+                  cursor: 'pointer', zIndex: 2,
+                }}
+              >
+                <IconImage size={12} /> Cambiar banner
+              </button>
+            )}
+            <input
+              ref={bannerInputRef}
+              type="file"
+              accept="image/jpeg,image/png"
+              onChange={handleBannerChange}
+              style={{ display: 'none' }}
+            />
           </div>
+
+          {/* Avatar */}
           <div className="profileAvatar__anchor">
             <div className="profileAvatar">
               {currentAvatar
@@ -372,11 +435,25 @@ export default function ProfilePage() {
               {saveError && <div className="profileEditForm__error">{saveError}</div>}
               <form onSubmit={handleSaveProfile} className="profileEditForm__fields">
 
+                {/* Hint foto de perfil */}
                 {avatarFile && (
                   <p className="profileEditForm__avatarHint">
                     <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt=""
                       style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle', opacity: 0.8 }} />
                     Nueva foto de perfil: {avatarFile.name}
+                  </p>
+                )}
+
+                {/* Hint banner ← nuevo */}
+                {bannerFile ? (
+                  <p className="profileEditForm__avatarHint">
+                    <img src={`${import.meta.env.BASE_URL}icons/check.png`} alt=""
+                      style={{ width: 12, height: 12, display: 'inline', marginRight: 4, verticalAlign: 'middle', opacity: 0.8 }} />
+                    Nuevo banner: {bannerFile.name}
+                  </p>
+                ) : (
+                  <p style={{ fontSize: 12, color: '#6b7280', margin: '0 0 2px' }}>
+                    Para cambiar el banner haz clic en <strong>"Cambiar banner"</strong> en la imagen de arriba.
                   </p>
                 )}
 
