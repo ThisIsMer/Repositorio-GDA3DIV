@@ -79,11 +79,17 @@ export default function UserProfilePage() {
 
         {/* Banner + Avatar */}
         <div className="profileBanner__wrap">
-          <div className="profileBanner">
-            <svg className="profileBanner__svg" viewBox="0 0 420 420">
-              <circle cx="300" cy="100" r="220" fill="white" />
-              <circle cx="180" cy="340" r="140" fill="white" />
-            </svg>
+          <div className="profileBanner" style={currentBanner ? { background: 'none' } : {}}>
+            {currentBanner
+              ? <img src={currentBanner} alt="Banner de perfil"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              : (
+                <svg className="profileBanner__svg" viewBox="0 0 420 420">
+                  <circle cx="300" cy="100" r="220" fill="white" />
+                  <circle cx="180" cy="340" r="140" fill="white" />
+                </svg>
+              )
+            }
           </div>
           <div className="profileAvatar__anchor">
             <div className="profileAvatar">
