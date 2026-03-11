@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
+import Navbar from '../components/layout/Navbar'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail]       = useState('')
@@ -22,40 +23,31 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow border border-gray-200">
 
-        {/* Logo / título */}
-        <div className="mb-6 text-center">
-          <Link to="/" className="text-2xl font-bold text-slate-900">Repositorio</Link>
-          <h1 className="mt-3 text-xl font-semibold text-gray-800">Recuperar contraseña</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Recuperar contraseña</h2>
+        <p className="text-sm text-gray-500 mb-6">
+          Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
 
         {success ? (
-          <div className="text-center space-y-4">
-            <div className="text-5xl">📬</div>
-            <p className="text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm">
+          <div className="space-y-4">
+            <div className="text-5xl text-center">📬</div>
+            <p className="bg-green-50 border border-green-200 text-green-700 p-3 rounded text-sm">
               Si existe una cuenta con ese correo, recibirás un enlace en breve. Revisa también tu carpeta de spam.
             </p>
-            <Link to="/login" className="text-sm text-blue-600 hover:underline block mt-2">
-              ← Volver al inicio de sesión
-            </Link>
+            <p className="text-sm text-gray-500 text-center">
+              <Link to="/login" className="text-blue-600 hover:underline">← Volver al inicio de sesión</Link>
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
+            {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
               <input
                 type="email"
                 value={email}
@@ -69,16 +61,14 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm transition"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
             >
               {loading ? 'Enviando...' : 'Enviar enlace de recuperación'}
             </button>
 
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-sm text-gray-500 mt-4 text-center">
               ¿Recuerdas tu contraseña?{' '}
-              <Link to="/login" className="text-blue-600 hover:underline">
-                Inicia sesión
-              </Link>
+              <Link to="/login" className="text-blue-600 hover:underline">Inicia sesión</Link>
             </p>
           </form>
         )}

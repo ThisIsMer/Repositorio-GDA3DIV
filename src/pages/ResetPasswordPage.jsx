@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
+import Navbar from '../components/layout/Navbar'
 
 export default function ResetPasswordPage() {
   const [searchParams]              = useSearchParams()
@@ -38,41 +39,37 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <p className="text-gray-600">Enlace de recuperación inválido.</p>
-          <Link to="/forgot-password" className="text-blue-600 hover:underline text-sm mt-2 block">
-            Solicitar uno nuevo
-          </Link>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow border border-gray-200 text-center">
+          <p className="text-gray-600 text-sm">Enlace de recuperación inválido.</p>
+          <p className="mt-4">
+            <Link to="/forgot-password" className="text-blue-600 hover:underline text-sm">
+              Solicitar uno nuevo
+            </Link>
+          </p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow border border-gray-200">
 
-        <div className="mb-6 text-center">
-          <Link to="/" className="text-2xl font-bold text-slate-900">Repositorio</Link>
-          <h1 className="mt-3 text-xl font-semibold text-gray-800">Nueva contraseña</h1>
-          <p className="text-sm text-gray-500 mt-1">Elige una contraseña segura de al menos 8 caracteres.</p>
-        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Nueva contraseña</h2>
 
         {success ? (
-          <div className="text-center space-y-3">
-            <div className="text-5xl">✅</div>
-            <p className="text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-sm">
+          <div className="space-y-4">
+            <div className="text-5xl text-center">✅</div>
+            <p className="bg-green-50 border border-green-200 text-green-700 p-3 rounded text-sm">
               ¡Contraseña restablecida correctamente! Redirigiendo al inicio de sesión...
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
+            {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
@@ -97,6 +94,7 @@ export default function ResetPasswordPage() {
                 placeholder="Mínimo 8 caracteres"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <p className="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, mayúscula, minúscula y número</p>
             </div>
 
             <div>
@@ -114,7 +112,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm transition"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
             >
               {loading ? 'Guardando...' : 'Restablecer contraseña'}
             </button>
