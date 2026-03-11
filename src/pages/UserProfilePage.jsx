@@ -68,9 +68,10 @@ export default function UserProfilePage() {
     </div>
   )
 
-  const user = data.user ?? {}
+  const user     = data.user ?? {}
   const projects = data.projects ?? (Array.isArray(data) ? data : [])
-  const avatar = avatarUrl(user.profile_picture)
+  const avatar   = avatarUrl(user.profile_picture)
+  const banner   = avatarUrl(user.profile_banner)   // ← variable correcta
 
   return (
     <div className="page">
@@ -79,9 +80,9 @@ export default function UserProfilePage() {
 
         {/* Banner + Avatar */}
         <div className="profileBanner__wrap">
-          <div className="profileBanner" style={currentBanner ? { background: 'none' } : {}}>
-            {currentBanner
-              ? <img src={currentBanner} alt="Banner de perfil"
+          <div className="profileBanner" style={banner ? { background: 'none' } : {}}>
+            {banner
+              ? <img src={banner} alt="Banner de perfil"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               : (
                 <svg className="profileBanner__svg" viewBox="0 0 420 420">
